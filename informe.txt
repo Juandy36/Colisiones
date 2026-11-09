@@ -1,0 +1,41 @@
+INFORME - Colisiones y conservacion del momento lineal
+Materia: Mecanica
+Integrantes: Jefferson Useche (lider), Vismar Mendez, Andres Nichoy, Juan Diego Ortiz, Paulo Claro
+
+1. OBJETIVO
+Programar en Python y Java colisiones en una dimension (elasticas e inelasticas)
+y comprobar que el momento lineal siempre se conserva.
+
+2. QUE HICIMOS
+- colisiones.py: clases Colision, Elastica e Inelastica (herencia, como en el parcial)
+  y un menu en consola. Guarda las colisiones en resultados.csv.
+- grafica.py: grafica con matplotlib el momento y la energia antes y despues.
+- Main.java: la misma idea en Java, con Scanner y un switch.
+- animacion.html: pagina donde se ve chocar los dos bloques.
+- test_navegador.py: prueba la pagina con playwright.
+
+3. RESULTADOS (casos de notas.txt)
+Caso 1 - Elastica m1=2, v1=3, m2=1, v2=0:
+  v1f=1.0 y v2f=4.0, momento 6 -> 6, energia 9 -> 9 (se conservan las dos)
+Caso 2 - Elastica con masas iguales m1=m2=1, v1=5, v2=0:
+  intercambian velocidades, v1f=0 y v2f=5
+Caso 3 - Inelastica e=0 (quedan pegados) m1=2, v1=3, m2=1, v2=0:
+  v1f=v2f=2.0, momento 6 -> 6, energia 9 -> 6 (se pierden 3 J)
+Caso 4 - Inelastica con e=1:
+  da lo mismo que la elastica del caso 1
+
+Los resultados de Python, Java y la pagina web coinciden.
+
+4. PROBLEMAS QUE ENCONTRAMOS Y COMO LOS ARREGLAMOS
+- Si el usuario escribia letras en vez de numeros el programa se caia.
+  Lo arreglamos con try/except (pedir_numero en Python, InputMismatchException en Java).
+- grafica.py se caia si todavia no existia resultados.csv. Ahora avisa y termina.
+- Las masas en 0 o negativas daban division por cero o resultados raros.
+  Ahora se vuelve a pedir el dato.
+- En la animacion, si v1 <= v2 los bloques nunca chocan; ahora la pagina avisa.
+
+5. CONCLUSIONES
+- El momento lineal se conservo en todas las colisiones, elasticas e inelasticas.
+- La energia cinetica solo se conserva en la elastica; en la inelastica se pierde
+  (e=0 es la que mas pierde).
+- Probar con casos hechos a mano nos sirvio para encontrar errores en el codigo.

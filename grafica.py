@@ -1,3 +1,4 @@
+#Trabajo en conjunto con Vismar Mendez, Juan Diego Ortiz y Paulo Claro
 #Lee resultados.csv (hecho por colisiones.py o por Main.java) y grafica
 import matplotlib.pyplot as plt
 

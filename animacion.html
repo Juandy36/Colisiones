@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Colisiones - Proyecto Mecanica</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 760px; margin: 20px auto; padding: 0 12px; }
+  label { display: inline-block; width: 190px; margin: 3px 0; }
+  input, select { width: 90px; }
+  canvas { border: 1px solid black; margin-top: 10px; width: 100%; background: #f5f5f5; }
+  #resultado { margin-top: 10px; line-height: 1.5; }
+  #mensaje { color: darkred; font-weight: bold; }
+</style>
+</head>
+<body>
+<h2>Colisiones en una dimension</h2>
+<p>Proyecto final de Mecanica: Jefferson, Vismar, Andres, Juan Diego y Paulo.</p>
+
+<label>Tipo de colision:</label>
+<select id="tipo">
+  <option value="elastica">Elastica</option>
+  <option value="inelastica">Inelastica</option>
+</select><br>
+<label>Masa 1 (kg):</label><input type="number" id="m1" value="2" step="any"><br>
+<label>Velocidad 1 (m/s):</label><input type="number" id="v1" value="3" step="any"><br>
+<label>Masa 2 (kg):</label><input type="number" id="m2" value="1" step="any"><br>
+<label>Velocidad 2 (m/s):</label><input type="number" id="v2" value="0" step="any"><br>
+<label>Coeficiente e (0 a 1):</label><input type="number" id="e" value="0" step="any"><br>
+<small>(e solo se usa en la inelastica: 0 = quedan pegados, 1 = elastica)</small><br>
+<button id="simular">Simular</button>
+
+<p id="mensaje"></p>
+<canvas id="lienzo" width="720" height="140"></canvas>
+<div id="resultado"></div>
+
+<script>
+// Mismas formulas que colisiones.py y Main.java
+var lienzo = document.getElementById("lienzo");
+var ctx = lienzo.getContext("2d");
+var animando = null;
+
+function calcular(tipo, m1, v1, m2, v2, e) {
+  var v1f = 0;
+  var v2f = 0;
+  if (tipo == "elastica") {
+    v1f = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
+    v2f = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
+  } else {
+    var p = m1 * v1 + m2 * v2;
+    v1f = (p + m2 * e * (v2 - v1)) / (m1 + m2);
+    v2f = (p + m1 * e * (v1 - v2)) / (m1 + m2);
+  }
+  return [v1f, v2f];
+}
+
+function ancho(m) {
+  var a = 20 + m * 10;
+  if (a > 90) { a = 90; }
+  return a;
+}
+
+function dibujar(x1, x2, m1, m2) {
+  ctx.clearRect(0, 0, lienzo.width, lienzo.height);
+  ctx.fillStyle = "steelblue";
+  ctx.fillRect(x1, 60, ancho(m1), 50);
+  ctx.fillStyle = "tomato";
+  ctx.fillRect(x2, 60, ancho(m2), 50);
+  ctx.fillStyle = "black";
+  ctx.fillText("m1", x1 + 4, 90);
+  ctx.fillText("m2", x2 + 4, 90);
+}
+
+function mostrar(tipo, m1, v1, m2, v2, v1f, v2f) {
+  var pA = m1 * v1 + m2 * v2;
+  var pD = m1 * v1f + m2 * v2f;
+  var eA = 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2;
+  var eD = 0.5 * m1 * v1f * v1f + 0.5 * m2 * v2f * v2f;
+  var txt = "<b>Velocidades finales:</b> v1 = " + v1f.toFixed(2) + " m/s, v2 = " + v2f.toFixed(2) + " m/s<br>";
+  txt += "Momento antes: <span id='pAntes'>" + pA.toFixed(2) + "</span> | despues: <span id='pDespues'>" + pD.toFixed(2) + "</span> kg*m/s<br>";
+  txt += "Energia antes: <span id='eAntes'>" + eA.toFixed(2) + "</span> | despues: <span id='eDespues'>" + eD.toFixed(2) + "</span> J<br>";
+  if (Math.abs(pA - pD) < 0.0001) {
+    txt += "<span id='conservaP'>El momento SI se conservo</span><br>";
+  } else {
+    txt += "<span id='conservaP'>El momento NO se conservo</span><br>";
+  }
+  if (Math.abs(eA - eD) < 0.0001) {
+    txt += "<span id='conservaE'>La energia cinetica SI se conservo</span>";
+  } else {
+    txt += "<span id='conservaE'>La energia cinetica NO se conservo, se perdieron " + (eA - eD).toFixed(2) + " J</span>";
+  }
+  document.getElementById("resultado").innerHTML = txt;
+}
+
+document.getElementById("simular").onclick = function () {
+  if (animando != null) { clearInterval(animando); animando = null; }
+  document.getElementById("mensaje").innerText = "";
+  document.getElementById("resultado").innerHTML = "";
+
+  var tipo = document.getElementById("tipo").value;
+  var m1 = parseFloat(document.getElementById("m1").value);
+  var v1 = parseFloat(document.getElementById("v1").value);
+  var m2 = parseFloat(document.getElementById("m2").value);
+  var v2 = parseFloat(document.getElementById("v2").value);
+  var e = parseFloat(document.getElementById("e").value);
+
+  if (isNaN(m1) || isNaN(v1) || isNaN(m2) || isNaN(v2) || (tipo == "inelastica" && isNaN(e))) {
+    document.getElementById("mensaje").innerText = "Escriba numeros en todos los datos.";
+    return;
+  }
+  if (m1 <= 0 || m2 <= 0) {
+    document.getElementById("mensaje").innerText = "Las masas deben ser mayores a 0.";
+    return;
+  }
+  if (tipo == "inelastica" && (e < 0 || e > 1)) {
+    document.getElementById("mensaje").innerText = "e debe estar entre 0 y 1.";
+    return;
+  }
+
+  var res = calcular(tipo, m1, v1, m2, v2, e);
+  var v1f = res[0];
+  var v2f = res[1];
+  mostrar(tipo, m1, v1, m2, v2, v1f, v2f);
+
+  // El bloque 1 empieza a la izquierda, solo chocan si v1 > v2
+  if (v1 <= v2) {
+    document.getElementById("mensaje").innerText = "Con esas velocidades no hay choque (v1 debe ser mayor que v2).";
+    dibujar(50, 600, m1, m2);
+    return;
+  }
+
+  var x1 = 50;
+  var x2 = 600;
+  var choco = false;
+  var escala = 0.8;   // pixeles por cada m/s en cada paso
+  dibujar(x1, x2, m1, m2);
+
+  animando = setInterval(function () {
+    if (choco == false) {
+      x1 += v1 * escala;
+      x2 += v2 * escala;
+      if (x1 + ancho(m1) >= x2) {
+        choco = true;
+        x1 = x2 - ancho(m1);
+        document.getElementById("mensaje").innerText = "Choque!";
+      }
+    } else {
+      x1 += v1f * escala;
+      x2 += v2f * escala;
+    }
+    dibujar(x1, x2, m1, m2);
+    // se detiene cuando alguno sale del lienzo
+    if (x1 < -100 || x2 > lienzo.width + 100 || x1 > lienzo.width || x2 + ancho(m2) < 0) {
+      clearInterval(animando);
+      animando = null;
+    }
+  }, 20);
+};
+</script>
+</body>
+</html>
