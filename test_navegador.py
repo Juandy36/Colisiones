@@ -46,12 +46,16 @@ def finales(page):
     return (float(page.inner_text("#v1f")), float(page.inner_text("#v2f")))
 
 def python_java(page):
-    #lo que calculo Python y lo que calculo Java (leyendo el csv de Python)
-    if page.locator("#jaV1").count() == 0:
+    #la pagina ya no muestra el detalle, asi que le preguntamos a la API con los mismos datos:
+    #devuelve lo que calculo Python, lo que calculo Java (leyendo el csv de Python) y si coinciden
+    cuerpo = {"tipo": page.input_value("#tipo"), "m1": float(page.input_value("#m1")), "v1": float(page.input_value("#v1")),
+              "m2": float(page.input_value("#m2")), "v2": float(page.input_value("#v2"))}
+    if page.is_enabled("#e"):
+        cuerpo["e"] = float(page.input_value("#e"))
+    r = page.request.post(URL + "/api/calcular", data=cuerpo).json()
+    if r.get("java") is None:
         return None, None
-    py = (float(page.inner_text("#pyV1")), float(page.inner_text("#pyV2")))
-    ja = (float(page.inner_text("#jaV1")), float(page.inner_text("#jaV2")))
-    return py, ja
+    return (r["python"]["v1f"], r["python"]["v2f"]), (r["java"]["v1f"], r["java"]["v2f"])
 
 def casi(a, b):
     return a is not None and abs(a[0] - b[0]) < 0.01 and abs(a[1] - b[1]) < 0.01
@@ -136,7 +140,6 @@ try:
             revisar(f"{nombre}: se conserva el momento", "SI se conservo" in page.inner_text("#conservaP"))
             py, ja = python_java(page)
             revisar(f"{nombre}: Java leyo el csv de Python y dio lo mismo", py is not None and ja is not None and casi(py, ja))
-            revisar(f"{nombre}: la pagina dice que coinciden", "Coinciden Python y Java" in page.inner_text("#coinciden"))
             if nombre == "elastica 2,3,1,0":
                 revisar("elastica conserva la energia", "SI se conservo" in page.inner_text("#conservaE"))
             if tipo == "inelastica":

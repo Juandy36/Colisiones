@@ -61,7 +61,7 @@
     <div><label for="v2">Velocidad 2 (m/s)</label><input type="number" id="v2" value="0" step="any"></div>
     <div><label for="e">Coeficiente e (0 a 1)</label><input type="number" id="e" value="0" step="any"></div>
   </div>
-  <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica). Python calcula la colision y la guarda en resultados.csv; despues Java lee esa linea, la calcula por su cuenta y la compara.</small>
+  <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica).</small>
   <button id="simular" class="grande">Simular</button>
   <p id="mensaje"></p>
   <canvas id="lienzo" width="720" height="150"></canvas>
@@ -161,18 +161,6 @@ function mostrarResultado(r) {
     txt += "<span id='conservaE' class='si'>La energia cinetica SI se conservo</span>";
   } else {
     txt += "<span id='conservaE' class='no'>La energia cinetica NO se conservo, se perdieron " + fmt(r.energiaAntes - r.energiaDespues) + " J</span>";
-  }
-  txt += "<hr>";
-  txt += "<b>Python</b> calculo y guardo en resultados.csv: v1 = <span id='pyV1'>" + fmt(r.python.v1f) + "</span>, v2 = <span id='pyV2'>" + fmt(r.python.v2f) + "</span><br>";
-  if (r.java == null) {
-    txt += "<span id='coinciden' class='no'>Java no esta disponible, solo se muestra lo de Python</span>";
-  } else {
-    txt += "<b>Java</b> leyo esa linea del csv y calculo: v1 = <span id='jaV1'>" + fmt(r.java.v1f) + "</span>, v2 = <span id='jaV2'>" + fmt(r.java.v2f) + "</span><br>";
-    if (r.coinciden) {
-      txt += "<span id='coinciden' class='si'>Coinciden Python y Java</span>";
-    } else {
-      txt += "<span id='coinciden' class='no'>NO coinciden Python y Java</span>";
-    }
   }
   $("resultado").innerHTML = txt;
 }
