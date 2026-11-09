@@ -1,5 +1,3 @@
-#Trabajo en conjunto con Vismar Mendez, Juan Diego Ortiz y Paulo Claro
-#Lee resultados.csv (hecho por Main.java) y grafica
 import matplotlib.pyplot as plt
 
 nombres=[]
@@ -39,8 +37,8 @@ if len(nombres) == 0:
 else:
     ancho=0.35
     x=[]
-    xIzq=[]    #posicion de las barras de "antes"
-    xDer=[]    #posicion de las barras de "despues"
+    xIzq=[]   
+    xDer=[]   
     for i in range(len(nombres)):
         x.append(i)
         xIzq.append(i-ancho/2)
@@ -48,11 +46,10 @@ else:
 
     plt.figure(figsize=(10,4))
 
-    #grafica de momento
     plt.subplot(1,2,1)
     plt.bar(xIzq, p_antes, ancho, label="Antes")
     plt.bar(xDer, p_despues, ancho, label="Despues")
-    plt.xticks(x, nombres, rotation=45, ha="right")   #rotadas para que no se encimen
+    plt.xticks(x, nombres, rotation=45, ha="right")   
     plt.ylabel("Momento (kg*m/s)")
     plt.title("Momento lineal")
     plt.legend()
@@ -61,11 +58,11 @@ else:
     plt.subplot(1,2,2)
     plt.bar(xIzq, e_antes, ancho, label="Antes")
     plt.bar(xDer, e_despues, ancho, label="Despues")
-    plt.xticks(x, nombres, rotation=45, ha="right")   #rotadas para que no se encimen
+    plt.xticks(x, nombres, rotation=45, ha="right") 
     plt.ylabel("Energia cinetica (J)")
     plt.title("Energia cinetica")
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig("grafica.png")   #tambien la guardamos como imagen para el informe
+    plt.savefig("grafica.png")   
     plt.show()

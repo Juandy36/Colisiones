@@ -1,15 +1,12 @@
-import java.util.Scanner;
-import java.util.Locale;
-import java.util.InputMismatchException;
 import java.io.FileWriter;
 import java.io.IOException;
-// Proyecto final Mecanica - Colisiones (version en Java)
-// Trabajo en conjunto con Andres Nichoy, Juan Diego Ortiz y Paulo Claro
+import java.util.InputMismatchException;
+import java.util.Locale;
+import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        sc.useLocale(Locale.US);   // en Windows en español Scanner pedia coma decimal y fallaba con 2.5
-
+        sc.useLocale(Locale.US);  
         System.out.println("==================================================");
         System.out.println("Colisiones en una dimension");
         System.out.println("1. Elastica");
@@ -97,7 +94,6 @@ public class Main {
             System.out.println("La energia cinetica NO se conservo, se perdieron " + (eAntes - eDespues) + " J");
         }
 
-        // Guardamos en el mismo formato que colisiones.py: tipo,m1,v1,m2,v2,v1f,v2f
         try {
             FileWriter fw = new FileWriter("resultados.csv", true);
             fw.write(tipo + "," + m1 + "," + v1 + "," + m2 + "," + v2 + "," + v1f + "," + v2f + "\n");

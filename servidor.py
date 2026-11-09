@@ -1,6 +1,3 @@
-#Servidor de la pagina web del proyecto. Java (Main.java) calcula y Python (grafica.py) hace la grafica
-#Trabajo en conjunto con Jefferson Useche, Andres Nichoy, Juan Diego Ortiz y Paulo Claro
-#Uso: python servidor.py   (abre el navegador solo; NO_ABRIR=1 para que no lo abra, PUERTO=5050)
 import os
 import re
 import sys
@@ -21,7 +18,6 @@ hayJava = False
 candado = threading.Lock()
 
 def compilar_java():
-    #compilamos Main.java al arrancar; si no hay java avisamos en vez de romper
     global hayJava
     try:
         r = subprocess.run(["javac", "Main.java"], cwd=CARPETA, capture_output=True, text=True, timeout=60)
@@ -80,7 +76,6 @@ def calcular():
         return error("Las masas deben ser mayores a 0.")
     m1, v1, m2, v2 = datos["m1"], datos["v1"], datos["m2"], datos["v2"]
 
-    #Java es el unico que calcula: le mandamos los datos por stdin y Main.java agrega su linea al csv
     if not hayJava:
         return error("Java no esta disponible (no se encontro java o no compilo Main.java).", 503)
     if tipo == "elastica":
@@ -140,7 +135,7 @@ def grafica():
     if not os.path.exists(PNG):
         return "No se pudo generar la grafica", 404
     with open(PNG, "rb") as archivo:
-        datos = archivo.read()   #leemos todo para no dejar el archivo abierto (Windows no deja borrarlo si no)
+        datos = archivo.read()  
     resp = Response(datos, mimetype="image/png")
     resp.headers["Cache-Control"] = "no-store"
     return resp
