@@ -16,7 +16,6 @@ y comprobar que el momento lineal siempre se conserva.
   Python (colisiones.py) calcula y guarda la colision en resultados.csv; Java
   (java Main verificar) lee esa linea, la calcula por su cuenta, la compara y deja
   la linea con sus valores; grafica.py grafica lo que dejo Java.
-- iniciar.bat: abre la pagina con doble clic, sin usar la terminal.
 - test_navegador.py: prueba la pagina con playwright y compara Python con Java.
 
 3. RESULTADOS (casos de notas.txt)

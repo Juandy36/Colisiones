@@ -16,15 +16,12 @@ Integrantes:
 - `Main.java`: versión en Java, calcula una colisión y la agrega a `resultados.csv`
 - `servidor.py`: servidor Flask que une los programas: Python calcula, Java verifica leyendo el csv de Python, y `grafica.py` grafica lo que dejó Java
 - `index.html`: la página con pestañas (Simulador, Historial, Gráfica, Informe)
-- `iniciar.bat`: instala lo que falta y abre la página con doble clic
 - `test_navegador.py`: prueba automática con playwright: arranca el servidor, usa la página y compara Python con Java
 - `notas.txt`: fórmulas y casos de prueba
 - `informe.txt`: resultados y conclusiones
 
 ## Cómo correrlo
-Lo más fácil: doble clic en `iniciar.bat` (instala lo que falta y abre la página en el navegador).
-
-O desde la terminal:
+Desde la terminal:
 ```
 pip install -r requirements.txt
 python servidor.py
