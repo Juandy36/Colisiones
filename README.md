@@ -11,9 +11,8 @@ Integrantes:
 - Paulo Cesar Claro
 
 ## Archivos
-- `colisiones.py`: programa principal en Python (menú, clases, guarda `resultados.csv`)
 - `grafica.py`: lee `resultados.csv` y grafica momento y energía (guarda `grafica.png`)
-- `Main.java`: versión en Java, calcula una colisión y la agrega a `resultados.csv`
+- `Main.java`: programa en Java que calcula una colisión (elástica o inelástica) y la agrega a `resultados.csv`
 - `servidor.py`: servidor Flask de la página: manda los datos a `Main.java` (Java es el que calcula) y usa `grafica.py` (Python) para la gráfica
 - `index.html`: la página con pestañas (Simulador, Historial, Gráfica, Informe)
 - `notas.txt`: fórmulas y casos de prueba
@@ -31,10 +30,9 @@ Hace falta tener `java` y `javac` instalados (el servidor compila `Main.java` so
 
 Los programas también se pueden usar por separado:
 ```
-python colisiones.py
 python grafica.py
 javac Main.java
 java Main
 ```
 
-Ojo: `colisiones.py` crea `resultados.csv` desde cero cada vez que se sale del menú de consola, y `Main.java` (también cuando lo usa la página) agrega líneas al final del archivo.
+Ojo: `Main.java` (también cuando lo usa la página) agrega una línea al final de `resultados.csv` en cada colisión.

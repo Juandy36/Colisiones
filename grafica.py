@@ -1,5 +1,5 @@
 #Trabajo en conjunto con Vismar Mendez, Juan Diego Ortiz y Paulo Claro
-#Lee resultados.csv (hecho por colisiones.py o por Main.java) y grafica
+#Lee resultados.csv (hecho por Main.java) y grafica
 import matplotlib.pyplot as plt
 
 nombres=[]
@@ -11,7 +11,7 @@ e_despues=[]
 try:
     archivo=open("resultados.csv", "r", encoding="utf-8")
 except FileNotFoundError:
-    print("No existe resultados.csv, corre primero colisiones.py o Main.java")
+    print("No existe resultados.csv, corre primero Main.java")
     exit()
 
 with archivo:
@@ -35,7 +35,7 @@ with archivo:
         e_despues.append(0.5*m1*v1f**2 + 0.5*m2*v2f**2)
 
 if len(nombres) == 0:
-    print("No hay colisiones en resultados.csv, corre primero colisiones.py")
+    print("No hay colisiones en resultados.csv, corre primero Main.java")
 else:
     ancho=0.35
     x=[]
