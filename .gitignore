@@ -2,3 +2,4 @@ __pycache__/
 *.class
 resultados.csv
 grafica.png
+captura_*.png
