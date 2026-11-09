@@ -14,7 +14,7 @@ Integrantes:
 - `colisiones.py`: programa principal en Python (menú, clases, guarda `resultados.csv`)
 - `grafica.py`: lee `resultados.csv` y grafica momento y energía (guarda `grafica.png`)
 - `Main.java`: versión en Java, calcula una colisión y la agrega a `resultados.csv`
-- `servidor.py`: servidor Flask que usa de verdad `colisiones.py`, `Main.java` y `grafica.py`
+- `servidor.py`: servidor Flask que une los programas: Python calcula, Java verifica leyendo el csv de Python, y `grafica.py` grafica lo que dejó Java
 - `index.html`: la página con pestañas (Simulador, Historial, Gráfica, Informe)
 - `iniciar.bat`: instala lo que falta y abre la página con doble clic
 - `test_navegador.py`: prueba automática con playwright: arranca el servidor, usa la página y compara Python con Java
@@ -30,7 +30,8 @@ pip install -r requirements.txt
 python servidor.py
 ```
 Se abre http://localhost:5050. Se puede cambiar el puerto con la variable `PUERTO` y evitar que abra el navegador con `NO_ABRIR=1`.
-Para el motor Java hace falta tener `java` y `javac` instalados (el servidor compila `Main.java` solo al arrancar).
+Cómo trabajan juntos: Python (`colisiones.py`) calcula la colisión y la guarda en `resultados.csv`; luego `java Main verificar` lee esa línea, la calcula por su cuenta, la compara y deja la línea con sus valores; por último `grafica.py` y el historial leen lo que dejó Java.
+Para la parte de Java hace falta tener `java` y `javac` instalados (el servidor compila `Main.java` solo al arrancar; sin Java la página solo muestra lo de Python).
 
 Los programas también se pueden usar por separado:
 ```

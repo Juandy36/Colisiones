@@ -53,8 +53,6 @@
 
 <section id="panelSimulador" class="visible">
   <div class="campos">
-    <div><label for="motor">Motor de calculo</label>
-      <select id="motor"><option value="python">Python</option><option value="java">Java</option></select></div>
     <div><label for="tipo">Tipo de colision</label>
       <select id="tipo"><option value="elastica">Elastica</option><option value="inelastica">Inelastica</option></select></div>
     <div><label for="m1">Masa 1 (kg)</label><input type="number" id="m1" value="2" step="any"></div>
@@ -63,7 +61,7 @@
     <div><label for="v2">Velocidad 2 (m/s)</label><input type="number" id="v2" value="0" step="any"></div>
     <div><label for="e">Coeficiente e (0 a 1)</label><input type="number" id="e" value="0" step="any"></div>
   </div>
-  <small>e solo se usa en la inelastica con motor Python (0 = quedan pegados, 1 = elastica). Java solo hace la inelastica perfecta (e = 0).</small>
+  <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica). Python calcula la colision y la guarda en resultados.csv; despues Java lee esa linea, la calcula por su cuenta y la compara.</small>
   <button id="simular" class="grande">Simular</button>
   <p id="mensaje"></p>
   <canvas id="lienzo" width="720" height="150"></canvas>
@@ -123,12 +121,9 @@ for (var i = 0; i < pestanas.length; i++) {
 // ---------- simulador ----------
 function actualizarE() {
   var tipo = $("tipo").value;
-  var motor = $("motor").value;
-  if (tipo == "inelastica" && motor == "java") { $("e").value = 0; }
-  $("e").disabled = !(tipo == "inelastica" && motor == "python");
+  $("e").disabled = (tipo != "inelastica");
 }
 $("tipo").onchange = actualizarE;
-$("motor").onchange = actualizarE;
 actualizarE();
 
 function ancho(m) {
@@ -167,7 +162,18 @@ function mostrarResultado(r) {
   } else {
     txt += "<span id='conservaE' class='no'>La energia cinetica NO se conservo, se perdieron " + fmt(r.energiaAntes - r.energiaDespues) + " J</span>";
   }
-  txt += "<br><small>Calculado con: <span id='motorUsado'>" + $("motor").value + "</span></small>";
+  txt += "<hr>";
+  txt += "<b>Python</b> calculo y guardo en resultados.csv: v1 = <span id='pyV1'>" + fmt(r.python.v1f) + "</span>, v2 = <span id='pyV2'>" + fmt(r.python.v2f) + "</span><br>";
+  if (r.java == null) {
+    txt += "<span id='coinciden' class='no'>Java no esta disponible, solo se muestra lo de Python</span>";
+  } else {
+    txt += "<b>Java</b> leyo esa linea del csv y calculo: v1 = <span id='jaV1'>" + fmt(r.java.v1f) + "</span>, v2 = <span id='jaV2'>" + fmt(r.java.v2f) + "</span><br>";
+    if (r.coinciden) {
+      txt += "<span id='coinciden' class='si'>Coinciden Python y Java</span>";
+    } else {
+      txt += "<span id='coinciden' class='no'>NO coinciden Python y Java</span>";
+    }
+  }
   $("resultado").innerHTML = txt;
 }
 
@@ -209,7 +215,6 @@ $("simular").onclick = function () {
   $("mensaje").innerText = "";
   $("resultado").innerHTML = "";
 
-  var motor = $("motor").value;
   var tipo = $("tipo").value;
   var m1 = parseFloat($("m1").value);
   var v1 = parseFloat($("v1").value);
@@ -237,7 +242,7 @@ $("simular").onclick = function () {
     return;
   }
 
-  var datos = { motor: motor, tipo: tipo, m1: m1, v1: v1, m2: m2, v2: v2 };
+  var datos = { tipo: tipo, m1: m1, v1: v1, m2: m2, v2: v2 };
   if (usaE) { datos.e = e; }
 
   $("simular").disabled = true;
@@ -265,10 +270,10 @@ dibujar(40, lienzo.width - 40 - ancho(1), 2, 1);
 // ---------- historial ----------
 function cargarHistorial() {
   fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
-    var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th></tr>";
+    var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th><th>Java</th></tr>";
     for (var i = 0; i < filas.length; i++) {
       var f = filas[i];
-      txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td></tr>";
+      txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td><td>" + (f.verificadoJava ? "verificado" : "-") + "</td></tr>";
     }
     $("tabla").innerHTML = txt;
     $("vacioHistorial").innerText = filas.length == 0 ? "Aun no hay colisiones en el historial. Simule alguna en la pestaña Simulador." : "";

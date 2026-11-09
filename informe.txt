@@ -12,8 +12,10 @@ y comprobar que el momento lineal siempre se conserva.
 - grafica.py: grafica con matplotlib el momento y la energia antes y despues.
 - Main.java: la misma idea en Java, con Scanner y un switch.
 - servidor.py e index.html: una pagina web con pestanas (Simulador con animacion,
-  Historial, Grafica e Informe). La pagina no calcula nada: el servidor usa de verdad
-  las clases de colisiones.py o corre Main.java, y grafica.py hace la grafica.
+  Historial, Grafica e Informe). La pagina no calcula nada: Python y Java trabajan juntos.
+  Python (colisiones.py) calcula y guarda la colision en resultados.csv; Java
+  (java Main verificar) lee esa linea, la calcula por su cuenta, la compara y deja
+  la linea con sus valores; grafica.py grafica lo que dejo Java.
 - iniciar.bat: abre la pagina con doble clic, sin usar la terminal.
 - test_navegador.py: prueba la pagina con playwright y compara Python con Java.
 
@@ -40,8 +42,8 @@ Los resultados de Python, Java y la pagina web coinciden.
   decimal. Lo arreglamos con sc.useLocale(Locale.US).
 - colisiones.py abria el menu al importarlo desde otro archivo. Ahora el menu esta en
   la funcion menu() y solo corre con if __name__ == "__main__".
-- La pagina y el servidor validan los datos (masas > 0, 0 <= e <= 1, numeros finitos);
-  el motor Java solo hace la inelastica perfecta (e = 0).
+- La pagina y el servidor validan los datos (masas > 0, 0 <= e <= 1, numeros finitos).
+- El puerto 5000 lo usa Windows (daba error 403), por eso la pagina usa el 5050.
 
 5. CONCLUSIONES
 - El momento lineal se conservo en todas las colisiones, elasticas e inelasticas.

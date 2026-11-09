@@ -27,8 +27,7 @@ def limpiar_archivos():
         if os.path.exists(nombre):
             os.remove(nombre)
 
-def llenar(page, motor, tipo, m1, v1, m2, v2, e=0):
-    page.select_option("#motor", motor)
+def llenar(page, tipo, m1, v1, m2, v2, e=0):
     page.select_option("#tipo", tipo)
     page.fill("#m1", str(m1))
     page.fill("#v1", str(v1))
@@ -45,6 +44,14 @@ def finales(page):
     if page.inner_text("#resultado") == "":
         return None
     return (float(page.inner_text("#v1f")), float(page.inner_text("#v2f")))
+
+def python_java(page):
+    #lo que calculo Python y lo que calculo Java (leyendo el csv de Python)
+    if page.locator("#jaV1").count() == 0:
+        return None, None
+    py = (float(page.inner_text("#pyV1")), float(page.inner_text("#pyV2")))
+    ja = (float(page.inner_text("#jaV1")), float(page.inner_text("#jaV2")))
+    return py, ja
 
 def casi(a, b):
     return a is not None and abs(a[0] - b[0]) < 0.01 and abs(a[1] - b[1]) < 0.01
@@ -107,15 +114,12 @@ try:
 
         revisar("la pagina tiene el titulo y las 4 pestañas", "Colisiones" in page.title() and page.locator("nav button").count() == 4)
 
-        #campo e: solo habilitado en inelastica + Python
-        page.select_option("#motor", "python")
+        #campo e: solo habilitado en inelastica
         page.select_option("#tipo", "elastica")
         revisar("e deshabilitado en elastica", page.is_disabled("#e"))
         page.select_option("#tipo", "inelastica")
-        revisar("e habilitado en inelastica + Python", page.is_enabled("#e"))
-        page.select_option("#motor", "java")
-        revisar("e deshabilitado en inelastica + Java", page.is_disabled("#e"))
-        page.select_option("#motor", "python")
+        revisar("e habilitado en inelastica", page.is_enabled("#e"))
+        revisar("ya no hay selector de motor (Python y Java trabajan juntos)", page.locator("#motor").count() == 0)
         page.select_option("#tipo", "elastica")
 
         borrar_historial(page)
@@ -127,57 +131,54 @@ try:
             ("inelastica e=0 2,3,1,0", "inelastica", 2, 3, 1, 0, 0, (2.0, 2.0)),
         ]
         for nombre, tipo, m1, v1, m2, v2, e, esperado in casos:
-            res = {}
-            for motor in ["python", "java"]:
-                llenar(page, motor, tipo, m1, v1, m2, v2, e)
-                res[motor] = finales(page)
-                revisar(f"{motor}: {nombre} da {esperado}", casi(res[motor], esperado))
-                revisar(f"{motor}: {nombre} conserva el momento", "SI se conservo" in page.inner_text("#conservaP"))
-            revisar(f"Python y Java dan lo mismo: {nombre}", res["python"] is not None and res["java"] is not None and casi(res["python"], res["java"]))
+            llenar(page, tipo, m1, v1, m2, v2, e)
+            revisar(f"{nombre} da {esperado}", casi(finales(page), esperado))
+            revisar(f"{nombre}: se conserva el momento", "SI se conservo" in page.inner_text("#conservaP"))
+            py, ja = python_java(page)
+            revisar(f"{nombre}: Java leyo el csv de Python y dio lo mismo", py is not None and ja is not None and casi(py, ja))
+            revisar(f"{nombre}: la pagina dice que coinciden", "Coinciden Python y Java" in page.inner_text("#coinciden"))
             if nombre == "elastica 2,3,1,0":
                 revisar("elastica conserva la energia", "SI se conservo" in page.inner_text("#conservaE"))
             if tipo == "inelastica":
                 revisar("inelastica e=0: se pierden 3.00 J", "3.00 J" in page.inner_text("#conservaE"))
         page.screenshot(path="captura_simulador.png")
 
-        llenar(page, "python", "inelastica", 2, 3, 1, 0, 1)
-        revisar("Python inelastica e=1 igual a elastica (1 y 4)", casi(finales(page), (1.0, 4.0)))
-        llenar(page, "python", "inelastica", 2, 3, 1, 0, 0.5)
+        llenar(page, "inelastica", 2, 3, 1, 0, 1)
+        revisar("inelastica e=1 igual a elastica (1 y 4)", casi(finales(page), (1.0, 4.0)))
+        llenar(page, "inelastica", 2, 3, 1, 0, 0.5)
         f = finales(page)
-        revisar("Python inelastica e=0.5 conserva momento y pierde energia", f is not None and "SI se conservo" in page.inner_text("#conservaP") and "NO se conservo" in page.inner_text("#conservaE"))
+        revisar("inelastica e=0.5 conserva momento y pierde energia", f is not None and "SI se conservo" in page.inner_text("#conservaP") and "NO se conservo" in page.inner_text("#conservaE"))
 
         #-------- velocidades negativas y decimales --------
-        for motor in ["python", "java"]:
-            llenar(page, motor, "elastica", 2, -1, 3, -4)
-            revisar(f"{motor}: velocidades negativas conservan el momento", finales(page) is not None and "SI se conservo" in page.inner_text("#conservaP"))
-        llenar(page, "python", "elastica", 2.5, 3.5, 1.5, 0.5)
-        py = finales(page)
-        llenar(page, "java", "elastica", 2.5, 3.5, 1.5, 0.5)
-        ja = finales(page)
-        revisar("Java entiende decimales como 2.5 y da lo mismo que Python", ja is not None and casi(py, ja))
-        llenar(page, "java", "inelastica", 2.5, 3.5, 1.5, 0.5)
-        revisar("Java inelastica con decimales funciona", finales(page) is not None)
+        llenar(page, "elastica", 2, -1, 3, -4)
+        py, ja = python_java(page)
+        revisar("velocidades negativas: conserva momento y Java coincide", "SI se conservo" in page.inner_text("#conservaP") and casi(py, ja))
+        llenar(page, "elastica", 2.5, 3.5, 1.5, 0.5)
+        py, ja = python_java(page)
+        revisar("Java entiende decimales como 2.5 y coincide con Python", py is not None and ja is not None and casi(py, ja))
+        llenar(page, "inelastica", 2.5, 3.5, 1.5, 0.5, 0.3)
+        py, ja = python_java(page)
+        revisar("inelastica con e=0.3 y decimales: Java coincide con Python", py is not None and ja is not None and casi(py, ja))
 
         #-------- errores de entrada (no deben llegar al servidor) --------
         antes = len(llamadas_calcular)
-        llenar(page, "python", "elastica", 0, 3, 1, 0)
+        llenar(page, "elastica", 0, 3, 1, 0)
         revisar("masa 0 muestra error y no hay resultado", "mayores a 0" in page.inner_text("#mensaje") and page.inner_text("#resultado") == "")
-        llenar(page, "python", "elastica", "", 3, 1, 0)
+        llenar(page, "elastica", "", 3, 1, 0)
         revisar("campo vacio muestra error", "numeros" in page.inner_text("#mensaje"))
-        llenar(page, "python", "inelastica", 2, 3, 1, 0, 1.5)
+        llenar(page, "inelastica", 2, 3, 1, 0, 1.5)
         revisar("e fuera de rango muestra error", "entre 0 y 1" in page.inner_text("#mensaje"))
-        llenar(page, "python", "elastica", 2, 1, 1, 3)
+        llenar(page, "elastica", 2, 1, 1, 3)
         revisar("v1<=v2 avisa que no hay choque", "no hay choque" in page.inner_text("#mensaje"))
         revisar("errores y no-choque no llaman al servidor", len(llamadas_calcular) == antes)
         page.screenshot(path="captura_error.png")
 
         #el servidor tambien valida por su cuenta (probamos la API directo)
         for cuerpo, texto in [
-            ({"motor": "python", "tipo": "elastica", "m1": 0, "v1": 1, "m2": 1, "v2": 0}, "masa 0"),
-            ({"motor": "python", "tipo": "elastica", "m1": "a", "v1": 1, "m2": 1, "v2": 0}, "texto en vez de numero"),
-            ({"motor": "python", "tipo": "inelastica", "m1": 1, "v1": 1, "m2": 1, "v2": 0, "e": 2}, "e fuera de rango"),
-            ({"motor": "java", "tipo": "inelastica", "m1": 1, "v1": 1, "m2": 1, "v2": 0, "e": 0.5}, "Java con e distinto de 0"),
-            ({"motor": "cobol", "tipo": "elastica", "m1": 1, "v1": 1, "m2": 1, "v2": 0}, "motor desconocido"),
+            ({"tipo": "elastica", "m1": 0, "v1": 1, "m2": 1, "v2": 0}, "masa 0"),
+            ({"tipo": "elastica", "m1": "a", "v1": 1, "m2": 1, "v2": 0}, "texto en vez de numero"),
+            ({"tipo": "inelastica", "m1": 1, "v1": 1, "m2": 1, "v2": 0, "e": 2}, "e fuera de rango"),
+            ({"tipo": "cobol", "m1": 1, "v1": 1, "m2": 1, "v2": 0}, "tipo desconocido"),
         ]:
             resp = page.request.post(URL + "/api/calcular", data=cuerpo)
             revisar(f"API rechaza con 400: {texto}", resp.status == 400 and "error" in resp.json())
@@ -185,7 +186,7 @@ try:
 
         #-------- animacion --------
         page.reload()
-        llenar(page, "python", "elastica", 2, 3, 1, 0)
+        llenar(page, "elastica", 2, 3, 1, 0)
         dibujo1 = page.evaluate("document.getElementById('lienzo').toDataURL()")
         page.wait_for_function("document.getElementById('mensaje').innerText.includes('Choque')", timeout=15000)
         dibujo2 = page.evaluate("document.getElementById('lienzo').toDataURL()")
@@ -203,10 +204,11 @@ try:
         page.screenshot(path="captura_grafica_vacia.png")
         page.click("#tabSimulador")
 
-        llenar(page, "python", "elastica", 2, 3, 1, 0)
-        llenar(page, "java", "elastica", 2, 3, 1, 0)
-        llenar(page, "python", "inelastica", 2, 3, 1, 0, 0.5)
-        revisar("el historial cuenta 3 filas (Python y Java)", filas_tabla(page, 3) == 3)
+        llenar(page, "elastica", 2, 3, 1, 0)
+        llenar(page, "inelastica", 1, 4, 2, -1, 0)
+        llenar(page, "inelastica", 2, 3, 1, 0, 0.5)
+        revisar("el historial cuenta 3 filas", filas_tabla(page, 3) == 3)
+        revisar("el historial marca las filas como verificadas por Java", page.inner_text("#tabla").count("verificado") == 3)
         page.screenshot(path="captura_historial.png")
 
         page.click("#tabGrafica")
@@ -236,7 +238,7 @@ try:
         movil = navegador.new_page(viewport={"width": 375, "height": 800})
         movil.on("console", lambda m: errores_consola.append(m.text) if m.type == "error" else None)
         movil.goto(URL)
-        llenar(movil, "python", "elastica", 2, 3, 1, 0)
+        llenar(movil, "elastica", 2, 3, 1, 0)
         ancho_pagina = movil.evaluate("document.documentElement.scrollWidth")
         revisar("en celular no hay scroll horizontal", ancho_pagina <= 376)
         movil.screenshot(path="captura_celular.png", full_page=True)
