@@ -37,25 +37,31 @@ with archivo:
 if len(nombres) == 0:
     print("No hay colisiones en resultados.csv, corre primero colisiones.py")
 else:
-    x=list(range(len(nombres)))
     ancho=0.35
+    x=[]
+    xIzq=[]    #posicion de las barras de "antes"
+    xDer=[]    #posicion de las barras de "despues"
+    for i in range(len(nombres)):
+        x.append(i)
+        xIzq.append(i-ancho/2)
+        xDer.append(i+ancho/2)
 
     plt.figure(figsize=(10,4))
 
     #grafica de momento
     plt.subplot(1,2,1)
-    plt.bar([i-ancho/2 for i in x], p_antes, ancho, label="Antes")
-    plt.bar([i+ancho/2 for i in x], p_despues, ancho, label="Despues")
-    plt.xticks(x, nombres)
+    plt.bar(xIzq, p_antes, ancho, label="Antes")
+    plt.bar(xDer, p_despues, ancho, label="Despues")
+    plt.xticks(x, nombres, rotation=45, ha="right")   #rotadas para que no se encimen
     plt.ylabel("Momento (kg*m/s)")
     plt.title("Momento lineal")
     plt.legend()
 
     #grafica de energia
     plt.subplot(1,2,2)
-    plt.bar([i-ancho/2 for i in x], e_antes, ancho, label="Antes")
-    plt.bar([i+ancho/2 for i in x], e_despues, ancho, label="Despues")
-    plt.xticks(x, nombres)
+    plt.bar(xIzq, e_antes, ancho, label="Antes")
+    plt.bar(xDer, e_despues, ancho, label="Despues")
+    plt.xticks(x, nombres, rotation=45, ha="right")   #rotadas para que no se encimen
     plt.ylabel("Energia cinetica (J)")
     plt.title("Energia cinetica")
     plt.legend()

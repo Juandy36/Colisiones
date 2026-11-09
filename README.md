@@ -15,7 +15,7 @@ Integrantes:
 - `grafica.py`: lee `resultados.csv` y grafica momento y energía (guarda `grafica.png`)
 - `Main.java`: versión en Java, calcula una colisión y la agrega a `resultados.csv`
 - `animacion.html`: simulación en el navegador (se abre con doble clic)
-- `test_navegador.py`: prueba automática de la página con playwright
+- `test_navegador.py`: prueba automática con playwright: la página, y también corre `colisiones.py`, `Main.java` y `grafica.py` y compara que den lo mismo (33 comprobaciones)
 - `notas.txt`: fórmulas y casos de prueba
 - `informe.txt`: resultados y conclusiones
 

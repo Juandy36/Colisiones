@@ -3,10 +3,12 @@ import java.util.InputMismatchException;
 import java.io.FileWriter;
 import java.io.IOException;
 // Proyecto final Mecanica - Colisiones (version en Java)
+// Trabajo en conjunto con Andres Nichoy, Juan Diego Ortiz y Paulo Claro
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        System.out.println("==================================================");
         System.out.println("Colisiones en una dimension");
         System.out.println("1. Elastica");
         System.out.println("2. Perfectamente inelastica");
@@ -66,7 +68,8 @@ public class Main {
         double eAntes = 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2;
         double eDespues = 0.5 * m1 * v1f * v1f + 0.5 * m2 * v2f * v2f;
 
-        System.out.println("\nTipo: " + tipo);
+        System.out.println("\n--------------Resultados--------------");
+        System.out.println("Tipo: " + tipo);
         System.out.println("Velocidades finales: v1 = " + v1f + " | v2 = " + v2f);
         System.out.println("Momento antes: " + pAntes + " | despues: " + pDespues);
         System.out.println("Energia antes: " + eAntes + " | despues: " + eDespues);
@@ -75,6 +78,12 @@ public class Main {
             System.out.println("El momento SI se conservo");
         } else {
             System.out.println("El momento NO se conservo");
+        }
+
+        if (Math.abs(eAntes - eDespues) < 0.0001) {
+            System.out.println("La energia cinetica SI se conservo");
+        } else {
+            System.out.println("La energia cinetica NO se conservo, se perdieron " + (eAntes - eDespues) + " J");
         }
 
         // Guardamos en el mismo formato que colisiones.py: tipo,m1,v1,m2,v2,v1f,v2f

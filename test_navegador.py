@@ -2,6 +2,9 @@
 #Prueba animacion.html en el navegador con playwright (pip install playwright)
 #Uso: python test_navegador.py
 import os
+import re
+import sys
+import subprocess
 from playwright.sync_api import sync_playwright
 
 ruta="file:///"+os.path.abspath("animacion.html").replace("\\","/")
@@ -88,7 +91,74 @@ with sync_playwright() as p:
     revisar("doble simulacion seguida funciona", "v1 = 1.00" in page.inner_text("#resultado"))
 
     page.screenshot(path="captura_animacion.png")
+
+    #-------- PRUEBA DE TODO JUNTO: Python -> Java -> grafica -> navegador --------
+    print()
+    print("Prueba completa: colisiones.py, Main.java, grafica.py y la pagina")
+    if os.path.exists("resultados.csv"):
+        os.remove("resultados.csv")
+
+    #tipo, m1, v1, m2, v2, e  (los dos ultimos son para Java, e=0)
+    casosPy=[("elastica",2,3,1,0,0),("inelastica",5,2,3,1,0.5),("inelastica",2,3,1,0,0),
+             ("elastica",1,5,1,0,0),("inelastica",2,-5,3,1,0.2)]
+    casosJava=[("elastica",2,3,1,0,0),("inelastica",1,4,2,-1,0)]
+
+    entrada=""
+    for c in casosPy:
+        t,m1,v1,m2,v2,e=c
+        if t=="elastica":
+            entrada+=f"1\n{m1}\n{v1}\n{m2}\n{v2}\n"
+        else:
+            entrada+=f"2\n{m1}\n{v1}\n{m2}\n{v2}\n{e}\n"
+    entrada+="3\n4\n"
+    r=subprocess.run([sys.executable,"colisiones.py"],input=entrada,text=True,encoding="utf-8",capture_output=True)
+    revisar("colisiones.py termina sin errores", r.returncode==0 and "Traceback" not in r.stderr)
+    revisar("colisiones.py crea resultados.csv", os.path.exists("resultados.csv"))
+
+    r=subprocess.run(["javac","Main.java"],capture_output=True,text=True)
+    revisar("Main.java compila", r.returncode==0)
+    for c in casosJava:
+        t,m1,v1,m2,v2,e=c
+        opcion="1" if t=="elastica" else "2"
+        r=subprocess.run(["java","Main"],input=f"{opcion}\n{m1}\n{v1}\n{m2}\n{v2}\n",text=True,encoding="utf-8",capture_output=True)
+        revisar(f"Main.java corre el caso {t} {m1},{v1},{m2},{v2}", r.returncode==0 and "SI se conservo" in r.stdout)
+
+    with open("resultados.csv","r",encoding="utf-8") as archivo:
+        filas=archivo.readlines()
+    todos=casosPy+casosJava
+    revisar("el csv tiene una linea por colision (Python + Java)", len(filas)==len(todos))
+
+    #cada linea del csv (Python o Java) se compara con lo que calcula la pagina
+    for i in range(len(filas)):
+        partes=filas[i].strip().split(",")
+        v1f=float(partes[5])
+        v2f=float(partes[6])
+        t,m1,v1,m2,v2,e=todos[i]
+        llenar(page,t,m1,v1,m2,v2,e)
+        numeros=re.findall(r"v[12] = (-?\d+\.\d+)", page.inner_text("#resultado"))
+        igual=len(numeros)==2 and abs(float(numeros[0])-v1f)<0.01 and abs(float(numeros[1])-v2f)<0.01
+        origen="Python" if i<len(casosPy) else "Java"
+        revisar(f"{origen} y la pagina dan lo mismo: {t} {m1},{v1},{m2},{v2}", igual)
+
+    entorno=dict(os.environ)
+    entorno["MPLBACKEND"]="Agg"   #sin ventana, solo guarda el png
+    r=subprocess.run([sys.executable,"grafica.py"],capture_output=True,text=True,encoding="utf-8",env=entorno)
+    revisar("grafica.py termina sin errores", r.returncode==0 and "Traceback" not in r.stderr)
+    revisar("grafica.py crea grafica.png", os.path.exists("grafica.png"))
+
+    #abrimos la grafica en el navegador y revisamos que cargue la imagen
+    pagina2=navegador.new_page()
+    pagina2.goto("file:///"+os.path.abspath("grafica.png").replace("\\","/"))
+    ancho=pagina2.evaluate("document.images.length > 0 ? document.images[0].naturalWidth : 0")
+    revisar("grafica.png se ve en el navegador", ancho>0)
+    pagina2.screenshot(path="captura_grafica.png")
+
     navegador.close()
+
+#limpiamos lo que generaron las pruebas
+for nombre in ["resultados.csv","grafica.png","Main.class"]:
+    if os.path.exists(nombre):
+        os.remove(nombre)
 
 revisar("sin errores en la consola del navegador", len(errores_consola)==0)
 if len(errores_consola) > 0:

@@ -1,5 +1,5 @@
 #Proyecto final Mecanica - Colisiones y conservacion del momento lineal
-#Jefferson Useche, Vismar Mendez, Andres Nichoy, Juan Diego Ortiz, Paulo Claro
+#Trabajo en conjunto con Jefferson Useche, Vismar Mendez, Andres Nichoy, Juan Diego Ortiz y Paulo Claro
 
 #CLASE COLISION (SUPERCLASE)###############
 class Colision:
@@ -29,22 +29,27 @@ class Colision:
         print(f"Tipo de colision: {self.tipo}")
         print(f"Antes:   v1 = {self.v1:.2f} m/s   v2 = {self.v2:.2f} m/s")
         print(f"Despues: v1 = {self.v1f:.2f} m/s   v2 = {self.v2f:.2f} m/s")
-        print(f"Momento antes:   {self.momento_antes():.2f} kg*m/s")
-        print(f"Momento despues: {self.momento_despues():.2f} kg*m/s")
-        print(f"Energia antes:   {self.energia_antes():.2f} J")
-        print(f"Energia despues: {self.energia_despues():.2f} J")
 
-        #comparamos con una tolerancia pequeña por los decimales
-        if abs(self.momento_antes()-self.momento_despues()) < 0.0001:
+        pA=self.momento_antes()
+        pD=self.momento_despues()
+        eA=self.energia_antes()
+        eD=self.energia_despues()
+
+        print(f"Momento antes:   {pA:.2f} kg*m/s")
+        print(f"Momento despues: {pD:.2f} kg*m/s")
+        print(f"Energia antes:   {eA:.2f} J")
+        print(f"Energia despues: {eD:.2f} J")
+
+        #comparamos con una tolerancia porque los decimales no son exactos
+        if abs(pA-pD) < 0.0001:
             print("El momento SI se conservo")
         else:
             print("El momento NO se conservo (hay un error)")
 
-        if abs(self.energia_antes()-self.energia_despues()) < 0.0001:
+        if abs(eA-eD) < 0.0001:
             print("La energia cinetica SI se conservo")
         else:
-            perdida = self.energia_antes()-self.energia_despues()
-            print(f"La energia cinetica NO se conservo, se perdieron {perdida:.2f} J")
+            print(f"La energia cinetica NO se conservo, se perdieron {eA-eD:.2f} J")
 
 #CLASES DE COLISIONES (SUBCLASES)############
 class Elastica(Colision):
@@ -54,8 +59,8 @@ class Elastica(Colision):
         self.calcular()
 
     def calcular(self):
-        self.v1f = ((self.m1-self.m2)*self.v1 + 2*self.m2*self.v2)/(self.m1+self.m2)
-        self.v2f = ((self.m2-self.m1)*self.v2 + 2*self.m1*self.v1)/(self.m1+self.m2)
+        self.v1f=((self.m1-self.m2)*self.v1 + 2*self.m2*self.v2)/(self.m1+self.m2)
+        self.v2f=((self.m2-self.m1)*self.v2 + 2*self.m1*self.v1)/(self.m1+self.m2)
 
 class Inelastica(Colision):
     def __init__(self, m1, v1, m2, v2, e):
@@ -65,13 +70,13 @@ class Inelastica(Colision):
         self.calcular()
 
     def calcular(self):
-        p = self.m1*self.v1 + self.m2*self.v2
-        self.v1f = (p + self.m2*self.e*(self.v2-self.v1))/(self.m1+self.m2)
-        self.v2f = (p + self.m1*self.e*(self.v1-self.v2))/(self.m1+self.m2)
+        p=self.m1*self.v1 + self.m2*self.v2
+        self.v1f=(p + self.m2*self.e*(self.v2-self.v1))/(self.m1+self.m2)
+        self.v2f=(p + self.m1*self.e*(self.v1-self.v2))/(self.m1+self.m2)
 
 #FUNCIONES############
 def pedir_numero(texto):
-    #sigue preguntando hasta que escriban un numero (si ponen letras no se cae)
+    #sigue preguntando hasta que escriban un numero, si ponen letras no se cae
     while True:
         try:
             return float(input(texto))
@@ -81,11 +86,11 @@ def pedir_numero(texto):
 def pedir_datos():
     m1=pedir_numero("Masa 1 (kg): ")
     while m1 <= 0:
-        m1=pedir_numero("La masa debe ser mayor a 0, intente de nuevo: ")
+        m1=pedir_numero("La masa tiene que ser mayor a 0, intente de nuevo: ")
     v1=pedir_numero("Velocidad inicial 1 (m/s): ")
     m2=pedir_numero("Masa 2 (kg): ")
     while m2 <= 0:
-        m2=pedir_numero("La masa debe ser mayor a 0, intente de nuevo: ")
+        m2=pedir_numero("La masa tiene que ser mayor a 0, intente de nuevo: ")
     v2=pedir_numero("Velocidad inicial 2 (m/s): ")
     return m1,v1,m2,v2
 
@@ -124,7 +129,7 @@ while opcion != 4:
         m1,v1,m2,v2=pedir_datos()
         e=pedir_numero("Coeficiente de restitucion e (0 = se quedan pegados, 1 = elastica): ")
         while e < 0 or e > 1:
-            e=pedir_numero("e debe estar entre 0 y 1, intente de nuevo: ")
+            e=pedir_numero("e tiene que estar entre 0 y 1, escriba bien ese dato: ")
         c=Inelastica(m1,v1,m2,v2,e)
         c.mostrar()
         historial.append(c)
