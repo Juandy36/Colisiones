@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.Locale;
 import java.util.InputMismatchException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        sc.useLocale(Locale.US);   // en Windows en español Scanner pedia coma decimal y fallaba con 2.5
 
         System.out.println("==================================================");
         System.out.println("Colisiones en una dimension");

@@ -11,8 +11,11 @@ y comprobar que el momento lineal siempre se conserva.
   y un menu en consola. Guarda las colisiones en resultados.csv.
 - grafica.py: grafica con matplotlib el momento y la energia antes y despues.
 - Main.java: la misma idea en Java, con Scanner y un switch.
-- animacion.html: pagina donde se ve chocar los dos bloques.
-- test_navegador.py: prueba la pagina con playwright.
+- servidor.py e index.html: una pagina web con pestanas (Simulador con animacion,
+  Historial, Grafica e Informe). La pagina no calcula nada: el servidor usa de verdad
+  las clases de colisiones.py o corre Main.java, y grafica.py hace la grafica.
+- iniciar.bat: abre la pagina con doble clic, sin usar la terminal.
+- test_navegador.py: prueba la pagina con playwright y compara Python con Java.
 
 3. RESULTADOS (casos de notas.txt)
 Caso 1 - Elastica m1=2, v1=3, m2=1, v2=0:
@@ -33,6 +36,12 @@ Los resultados de Python, Java y la pagina web coinciden.
 - Las masas en 0 o negativas daban division por cero o resultados raros.
   Ahora se vuelve a pedir el dato.
 - En la animacion, si v1 <= v2 los bloques nunca chocan; ahora la pagina avisa.
+- Main.java fallaba con 2.5 en Windows con configuracion en espanol: Scanner pedia coma
+  decimal. Lo arreglamos con sc.useLocale(Locale.US).
+- colisiones.py abria el menu al importarlo desde otro archivo. Ahora el menu esta en
+  la funcion menu() y solo corre con if __name__ == "__main__".
+- La pagina y el servidor validan los datos (masas > 0, 0 <= e <= 1, numeros finitos);
+  el motor Java solo hace la inelastica perfecta (e = 0).
 
 5. CONCLUSIONES
 - El momento lineal se conservo en todas las colisiones, elasticas e inelasticas.

@@ -101,50 +101,54 @@ def guardar_archivo(historial):
             archivo.write(f"{c.tipo},{c.m1},{c.v1},{c.m2},{c.v2},{c.v1f},{c.v2f}\n")
 
 #PROGRAMA PRINCIPAL#####################
-historial=[]
-opcion=0
+def menu():
+    historial=[]
+    opcion=0
 
-while opcion != 4:
-    print()
-    print("="*50)
-    print("COLISIONES EN UNA DIMENSION")
-    print("="*50)
-    print("1. Colision elastica")
-    print("2. Colision inelastica")
-    print("3. Ver historial")
-    print("4. Salir")
+    while opcion != 4:
+        print()
+        print("="*50)
+        print("COLISIONES EN UNA DIMENSION")
+        print("="*50)
+        print("1. Colision elastica")
+        print("2. Colision inelastica")
+        print("3. Ver historial")
+        print("4. Salir")
 
-    try:
-        opcion=int(input("\nSeleccione una opcion (1-4): "))
-    except ValueError:
-        opcion=0   #cae en el else de abajo (opcion invalida)
+        try:
+            opcion=int(input("\nSeleccione una opcion (1-4): "))
+        except ValueError:
+            opcion=0   #cae en el else de abajo (opcion invalida)
 
-    if opcion == 1:
-        m1,v1,m2,v2=pedir_datos()
-        c=Elastica(m1,v1,m2,v2)
-        c.mostrar()
-        historial.append(c)
+        if opcion == 1:
+            m1,v1,m2,v2=pedir_datos()
+            c=Elastica(m1,v1,m2,v2)
+            c.mostrar()
+            historial.append(c)
 
-    elif opcion == 2:
-        m1,v1,m2,v2=pedir_datos()
-        e=pedir_numero("Coeficiente de restitucion e (0 = se quedan pegados, 1 = elastica): ")
-        while e < 0 or e > 1:
-            e=pedir_numero("e tiene que estar entre 0 y 1, escriba bien ese dato: ")
-        c=Inelastica(m1,v1,m2,v2,e)
-        c.mostrar()
-        historial.append(c)
+        elif opcion == 2:
+            m1,v1,m2,v2=pedir_datos()
+            e=pedir_numero("Coeficiente de restitucion e (0 = se quedan pegados, 1 = elastica): ")
+            while e < 0 or e > 1:
+                e=pedir_numero("e tiene que estar entre 0 y 1, escriba bien ese dato: ")
+            c=Inelastica(m1,v1,m2,v2,e)
+            c.mostrar()
+            historial.append(c)
 
-    elif opcion == 3:
-        if len(historial) == 0:
-            print("\nAun no hay colisiones en el historial.")
+        elif opcion == 3:
+            if len(historial) == 0:
+                print("\nAun no hay colisiones en el historial.")
+            else:
+                for i in range(len(historial)):
+                    c=historial[i]
+                    print(f"{i+1}. {c.tipo}: m1={c.m1} v1={c.v1} | m2={c.m2} v2={c.v2} -> v1f={c.v1f:.2f} v2f={c.v2f:.2f}")
+
+        elif opcion == 4:
+            guardar_archivo(historial)
+            print("\nSe guardo resultados.csv. Saliendo del programa")
+
         else:
-            for i in range(len(historial)):
-                c=historial[i]
-                print(f"{i+1}. {c.tipo}: m1={c.m1} v1={c.v1} | m2={c.m2} v2={c.v2} -> v1f={c.v1f:.2f} v2f={c.v2f:.2f}")
+            print("\nOpcion invalida. Debe ingresar un numero entre 1 y 4.")
 
-    elif opcion == 4:
-        guardar_archivo(historial)
-        print("\nSe guardo resultados.csv. Saliendo del programa")
-
-    else:
-        print("\nOpcion invalida. Debe ingresar un numero entre 1 y 4.")
+if __name__ == "__main__":
+    menu()
