@@ -29,7 +29,7 @@ O desde la terminal:
 pip install -r requirements.txt
 python servidor.py
 ```
-Se abre http://localhost:5000. Se puede cambiar el puerto con la variable `PUERTO` y evitar que abra el navegador con `NO_ABRIR=1`.
+Se abre http://localhost:5050. Se puede cambiar el puerto con la variable `PUERTO` y evitar que abra el navegador con `NO_ABRIR=1`.
 Para el motor Java hace falta tener `java` y `javac` instalados (el servidor compila `Main.java` solo al arrancar).
 
 Los programas también se pueden usar por separado:

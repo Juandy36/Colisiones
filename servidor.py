@@ -1,6 +1,6 @@
 #Servidor de la pagina web del proyecto. Usa de verdad colisiones.py, Main.java y grafica.py
 #Trabajo en conjunto con Jefferson Useche, Andres Nichoy, Juan Diego Ortiz y Paulo Claro
-#Uso: python servidor.py   (abre el navegador solo; NO_ABRIR=1 para que no lo abra, PUERTO=5000)
+#Uso: python servidor.py   (abre el navegador solo; NO_ABRIR=1 para que no lo abra, PUERTO=5050)
 import os
 import re
 import sys
@@ -164,7 +164,7 @@ def documento(nombre):
         return jsonify({"nombre": nombre, "texto": archivo.read()})
 
 if __name__ == "__main__":
-    puerto = int(os.environ.get("PUERTO", "5000"))
+    puerto = int(os.environ.get("PUERTO", "5050"))
     compilar_java()
     if os.environ.get("NO_ABRIR") != "1":
         threading.Timer(1.0, lambda: webbrowser.open(f"http://localhost:{puerto}")).start()
