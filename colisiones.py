@@ -70,15 +70,23 @@ class Inelastica(Colision):
         self.v2f = (p + self.m1*self.e*(self.v1-self.v2))/(self.m1+self.m2)
 
 #FUNCIONES############
+def pedir_numero(texto):
+    #sigue preguntando hasta que escriban un numero (si ponen letras no se cae)
+    while True:
+        try:
+            return float(input(texto))
+        except ValueError:
+            print("Eso no es un numero, escriba bien ese dato (ejemplo: 2.5)")
+
 def pedir_datos():
-    m1=float(input("Masa 1 (kg): "))
+    m1=pedir_numero("Masa 1 (kg): ")
     while m1 <= 0:
-        m1=float(input("La masa debe ser mayor a 0, intente de nuevo: "))
-    v1=float(input("Velocidad inicial 1 (m/s): "))
-    m2=float(input("Masa 2 (kg): "))
+        m1=pedir_numero("La masa debe ser mayor a 0, intente de nuevo: ")
+    v1=pedir_numero("Velocidad inicial 1 (m/s): ")
+    m2=pedir_numero("Masa 2 (kg): ")
     while m2 <= 0:
-        m2=float(input("La masa debe ser mayor a 0, intente de nuevo: "))
-    v2=float(input("Velocidad inicial 2 (m/s): "))
+        m2=pedir_numero("La masa debe ser mayor a 0, intente de nuevo: ")
+    v2=pedir_numero("Velocidad inicial 2 (m/s): ")
     return m1,v1,m2,v2
 
 def guardar_archivo(historial):
@@ -101,7 +109,10 @@ while opcion != 4:
     print("3. Ver historial")
     print("4. Salir")
 
-    opcion=int(input("\nSeleccione una opcion (1-4): "))
+    try:
+        opcion=int(input("\nSeleccione una opcion (1-4): "))
+    except ValueError:
+        opcion=0   #cae en el else de abajo (opcion invalida)
 
     if opcion == 1:
         m1,v1,m2,v2=pedir_datos()
@@ -111,9 +122,9 @@ while opcion != 4:
 
     elif opcion == 2:
         m1,v1,m2,v2=pedir_datos()
-        e=float(input("Coeficiente de restitucion e (0 = se quedan pegados, 1 = elastica): "))
+        e=pedir_numero("Coeficiente de restitucion e (0 = se quedan pegados, 1 = elastica): ")
         while e < 0 or e > 1:
-            e=float(input("e debe estar entre 0 y 1, intente de nuevo: "))
+            e=pedir_numero("e debe estar entre 0 y 1, intente de nuevo: ")
         c=Inelastica(m1,v1,m2,v2,e)
         c.mostrar()
         historial.append(c)

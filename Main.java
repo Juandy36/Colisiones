@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.InputMismatchException;
 import java.io.FileWriter;
 import java.io.IOException;
 // Proyecto final Mecanica - Colisiones (version en Java)
@@ -9,16 +10,36 @@ public class Main {
         System.out.println("Colisiones en una dimension");
         System.out.println("1. Elastica");
         System.out.println("2. Perfectamente inelastica");
-        int opcion = sc.nextInt();
+        int opcion = 0;
+        try {
+            opcion = sc.nextInt();
+        } catch (InputMismatchException ex) {
+            System.out.println("Opcion invalida.");
+            return;
+        }
 
-        System.out.println("Masa 1 (kg): ");
-        double m1 = sc.nextDouble();
-        System.out.println("Velocidad 1 (m/s): ");
-        double v1 = sc.nextDouble();
-        System.out.println("Masa 2 (kg): ");
-        double m2 = sc.nextDouble();
-        System.out.println("Velocidad 2 (m/s): ");
-        double v2 = sc.nextDouble();
+        double m1 = 0;
+        double v1 = 0;
+        double m2 = 0;
+        double v2 = 0;
+
+        try {
+            while (m1 <= 0) {
+                System.out.println("Masa 1 (kg), debe ser mayor a 0: ");
+                m1 = sc.nextDouble();
+            }
+            System.out.println("Velocidad 1 (m/s): ");
+            v1 = sc.nextDouble();
+            while (m2 <= 0) {
+                System.out.println("Masa 2 (kg), debe ser mayor a 0: ");
+                m2 = sc.nextDouble();
+            }
+            System.out.println("Velocidad 2 (m/s): ");
+            v2 = sc.nextDouble();
+        } catch (InputMismatchException ex) {
+            System.out.println("Error: tenia que escribir un numero.");
+            return;
+        }
 
         double v1f = 0;
         double v2f = 0;

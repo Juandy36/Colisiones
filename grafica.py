@@ -7,7 +7,13 @@ p_despues=[]
 e_antes=[]
 e_despues=[]
 
-with open("resultados.csv", "r", encoding="utf-8") as archivo:
+try:
+    archivo=open("resultados.csv", "r", encoding="utf-8")
+except FileNotFoundError:
+    print("No existe resultados.csv, corre primero colisiones.py o Main.java")
+    exit()
+
+with archivo:
     lineas=archivo.readlines()
     for L in lineas:
         partes=L.strip().split(",")
@@ -54,4 +60,5 @@ else:
     plt.legend()
 
     plt.tight_layout()
+    plt.savefig("grafica.png")   #tambien la guardamos como imagen para el informe
     plt.show()
