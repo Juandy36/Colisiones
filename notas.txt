@@ -1,0 +1,29 @@
+NOTAS DEL PROYECTO - Colisiones y momento lineal
+
+FORMULAS
+p = m*v
+Conservacion: m1*v1 + m2*v2 = m1*v1f + m2*v2f
+Energia cinetica: Ec = 1/2*m*v^2
+
+Elastica (se conserva p y Ec):
+v1f = ((m1-m2)*v1 + 2*m2*v2)/(m1+m2)
+v2f = ((m2-m1)*v2 + 2*m1*v1)/(m1+m2)
+
+Inelastica con coeficiente de restitucion e (se conserva p, Ec se pierde):
+v1f = (m1*v1 + m2*v2 + m2*e*(v2-v1))/(m1+m2)
+v2f = (m1*v1 + m2*v2 + m1*e*(v1-v2))/(m1+m2)
+e=0 -> perfectamente inelastica (quedan pegados): vf = (m1*v1 + m2*v2)/(m1+m2)
+e=1 -> elastica
+
+CASOS PARA PROBAR (sacarlos a mano y comparar con el programa)
+1. Elastica, m1=2, v1=3, m2=1, v2=0  ->  v1f=1.0, v2f=4.0
+2. Elastica, masas iguales m1=m2=1, v1=5, v2=0  ->  intercambian: v1f=0, v2f=5
+3. Inelastica e=0, m1=2, v1=3, m2=1, v2=0  ->  v1f=v2f=2.0 (Ec antes 9 J, despues 6 J)
+4. Inelastica e=1 debe dar igual que el caso 1
+
+REPARTO
+Jefferson: repo, README, notas
+Juan Diego: clases de colisiones.py
+Paulo: menu y csv de colisiones.py
+Vismar: grafica.py
+Andres: Main.java y pruebas Java vs Python
