@@ -12,11 +12,9 @@ y comprobar que el momento lineal siempre se conserva.
 - grafica.py: grafica con matplotlib el momento y la energia antes y despues.
 - Main.java: la misma idea en Java, con Scanner y un switch.
 - servidor.py e index.html: una pagina web con pestanas (Simulador con animacion,
-  Historial, Grafica e Informe). La pagina no calcula nada: Python y Java trabajan juntos.
-  Python (colisiones.py) calcula y guarda la colision en resultados.csv; Java
-  (java Main verificar) lee esa linea, la calcula por su cuenta, la compara y deja
-  la linea con sus valores; grafica.py grafica lo que dejo Java.
-- test_navegador.py: prueba la pagina con playwright y compara Python con Java.
+  Historial, Grafica e Informe). La pagina no calcula nada: manda los datos a
+  Main.java (Java es el motor de calculo, que agrega la colision a resultados.csv)
+  y grafica.py (Python) lee ese archivo y hace la grafica.
 
 3. RESULTADOS (casos de notas.txt)
 Caso 1 - Elastica m1=2, v1=3, m2=1, v2=0:
@@ -28,7 +26,7 @@ Caso 3 - Inelastica e=0 (quedan pegados) m1=2, v1=3, m2=1, v2=0:
 Caso 4 - Inelastica con e=1:
   da lo mismo que la elastica del caso 1
 
-Los resultados de Python, Java y la pagina web coinciden.
+Los resultados de Python (consola), Java y la pagina web coinciden.
 
 4. PROBLEMAS QUE ENCONTRAMOS Y COMO LOS ARREGLAMOS
 - Si el usuario escribia letras en vez de numeros el programa se caia.

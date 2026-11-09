@@ -258,10 +258,10 @@ dibujar(40, lienzo.width - 40 - ancho(1), 2, 1);
 // ---------- historial ----------
 function cargarHistorial() {
   fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
-    var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th><th>Java</th></tr>";
+    var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th></tr>";
     for (var i = 0; i < filas.length; i++) {
       var f = filas[i];
-      txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td><td>" + (f.verificadoJava ? "verificado" : "-") + "</td></tr>";
+      txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td></tr>";
     }
     $("tabla").innerHTML = txt;
     $("vacioHistorial").innerText = filas.length == 0 ? "Aun no hay colisiones en el historial. Simule alguna en la pestaña Simulador." : "";

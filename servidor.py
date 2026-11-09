@@ -1,4 +1,4 @@
-#Servidor de la pagina web del proyecto. Usa de verdad colisiones.py, Main.java y grafica.py
+#Servidor de la pagina web del proyecto. Java (Main.java) calcula y Python (grafica.py) hace la grafica
 #Trabajo en conjunto con Jefferson Useche, Andres Nichoy, Juan Diego Ortiz y Paulo Claro
 #Uso: python servidor.py   (abre el navegador solo; NO_ABRIR=1 para que no lo abra, PUERTO=5050)
 import os
@@ -8,8 +8,7 @@ import math
 import threading
 import subprocess
 import webbrowser
-from flask import Flask, jsonify, request, send_file, send_from_directory
-from colisiones import Elastica, Inelastica
+from flask import Flask, Response, jsonify, request, send_from_directory
 
 CARPETA = os.path.dirname(os.path.abspath(__file__))
 CSV = os.path.join(CARPETA, "resultados.csv")
@@ -31,7 +30,7 @@ def compilar_java():
             print("No se pudo compilar Main.java:", r.stderr)
     except (FileNotFoundError, subprocess.TimeoutExpired):
         hayJava = False
-        print("No se encontro java/javac, la pagina solo va a mostrar el calculo de Python")
+        print("No se encontro java/javac, la pagina no va a poder calcular")
 
 def es_numero(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
@@ -81,40 +80,28 @@ def calcular():
         return error("Las masas deben ser mayores a 0.")
     m1, v1, m2, v2 = datos["m1"], datos["v1"], datos["m2"], datos["v2"]
 
-    #paso 1: Python calcula y guarda la colision en resultados.csv
+    #Java es el unico que calcula: le mandamos los datos por stdin y Main.java agrega su linea al csv
+    if not hayJava:
+        return error("Java no esta disponible (no se encontro java o no compilo Main.java).", 503)
     if tipo == "elastica":
-        c = Elastica(m1, v1, m2, v2)
+        entrada = f"1\n{m1!r}\n{v1!r}\n{m2!r}\n{v2!r}\n"
     else:
-        c = Inelastica(m1, v1, m2, v2, e)
-    if not (math.isfinite(c.v1f) and math.isfinite(c.v2f)):
-        return error("Los numeros son demasiado grandes.")
-    python = {"v1f": c.v1f, "v2f": c.v2f}
-    java = None
+        entrada = f"2\n{m1!r}\n{v1!r}\n{m2!r}\n{v2!r}\n{e!r}\n"
     with candado:
-        with open(CSV, "a", encoding="utf-8") as archivo:
-            archivo.write(f"{c.tipo},{c.m1},{c.v1},{c.m2},{c.v2},{c.v1f},{c.v2f}\n")
-
-        #paso 2: Java lee esa ultima linea del csv, la calcula por su cuenta, la compara
-        #con la de Python y deja la linea con sus valores
-        if hayJava:
-            try:
-                r = subprocess.run(["java", "Main", "verificar", repr(e)], cwd=CARPETA, capture_output=True,
-                                   text=True, encoding="utf-8", timeout=30)
-                m = re.search(r"Java calculo: v1 = (\S+) \| v2 = (\S+)", r.stdout)
-                if r.returncode == 0 and m is not None:
-                    java = {"v1f": float(m.group(1)), "v2f": float(m.group(2))}
-            except (FileNotFoundError, subprocess.TimeoutExpired):
-                java = None
-
-    #paso 3: la pagina muestra lo de Java (ya verificado) si lo hay, si no lo de Python
-    final = java if java is not None else python
-    res = respuesta(c.tipo, m1, v1, m2, v2, final["v1f"], final["v2f"])
-    res["python"] = python
-    res["java"] = java
-    res["coinciden"] = None
-    if java is not None:
-        res["coinciden"] = abs(java["v1f"] - python["v1f"]) < TOLERANCIA and abs(java["v2f"] - python["v2f"]) < TOLERANCIA
-    return jsonify(res)
+        try:
+            r = subprocess.run(["java", "Main"], input=entrada, cwd=CARPETA, capture_output=True,
+                               text=True, encoding="utf-8", timeout=30)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return error("No se pudo ejecutar Java.", 500)
+    m = re.search(r"v1 = (\S+) \| v2 = (\S+)", r.stdout)
+    if r.returncode != 0 or m is None:
+        return error("Java no devolvio un resultado: " + (r.stdout + r.stderr).strip()[-200:], 500)
+    v1f = float(m.group(1))
+    v2f = float(m.group(2))
+    if not (math.isfinite(v1f) and math.isfinite(v2f)):
+        return error("Los numeros son demasiado grandes.")
+    nombre = "Elastica" if tipo == "elastica" else "Inelastica"
+    return jsonify(respuesta(nombre, m1, v1, m2, v2, v1f, v2f))
 
 @app.route("/api/historial")
 def historial():
@@ -129,9 +116,7 @@ def historial():
                     nums = [float(x) for x in p[1:7]]
                 except ValueError:
                     continue
-                fila = respuesta(p[0], *nums)
-                fila["verificadoJava"] = len(p) >= 8 and p[7] == "Java"
-                filas.append(fila)
+                filas.append(respuesta(p[0], *nums))
     return jsonify(filas)
 
 @app.route("/api/limpiar", methods=["POST"])
@@ -154,7 +139,9 @@ def grafica():
         pass
     if not os.path.exists(PNG):
         return "No se pudo generar la grafica", 404
-    resp = send_file(PNG, mimetype="image/png")
+    with open(PNG, "rb") as archivo:
+        datos = archivo.read()   #leemos todo para no dejar el archivo abierto (Windows no deja borrarlo si no)
+    resp = Response(datos, mimetype="image/png")
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
