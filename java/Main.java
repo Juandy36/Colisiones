@@ -1,106 +1,70 @@
-import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
-import java.util.InputMismatchException;
-import java.util.Locale;
-import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+
 public class Main {
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        sc.useLocale(Locale.US);  
-        System.out.println("==================================================");
-        System.out.println("Colisiones en una dimension");
-        System.out.println("1. Elastica");
-        System.out.println("2. Inelastica (con coeficiente de restitucion e)");
-        int opcion = 0;
-        try {
-            opcion = sc.nextInt();
-        } catch (InputMismatchException ex) {
-            System.out.println("Opcion invalida.");
-            return;
-        }
-
-        double m1 = 0;
-        double v1 = 0;
-        double m2 = 0;
-        double v2 = 0;
-        double e = 0;
 
         try {
-            while (m1 <= 0) {
-                System.out.println("Masa 1 (kg), debe ser mayor a 0: ");
-                m1 = sc.nextDouble();
-            }
-            System.out.println("Velocidad 1 (m/s): ");
-            v1 = sc.nextDouble();
-            while (m2 <= 0) {
-                System.out.println("Masa 2 (kg), debe ser mayor a 0: ");
-                m2 = sc.nextDouble();
-            }
-            System.out.println("Velocidad 2 (m/s): ");
-            v2 = sc.nextDouble();
-            if (opcion == 2) {
-                System.out.println("Coeficiente de restitucion e (0 = quedan pegados, 1 = elastica): ");
-                e = sc.nextDouble();
-                if (e < 0 || e > 1) {
-                    System.out.println("Error: e tiene que estar entre 0 y 1.");
-                    return;
-                }
-            }
-        } catch (InputMismatchException ex) {
-            System.out.println("Error: tenia que escribir un numero.");
-            return;
+
+            Colision colision = new Colision(
+                "elastica",
+                2.0,
+                3.0,
+                5.0,
+                -2.0
+            );
+
+            String json = JsonManager.convertirAJson(colision);
+
+            JsonManager.guardar(json, "../datos/colision.json");
+
+            ejecutarPython(json);
+
+        } catch (Exception e) {
+
+            System.out.println("Error: " + e.getMessage());
+
+        }
+    }
+
+    public static void ejecutarPython(String json) throws IOException, InterruptedException {
+
+        ProcessBuilder proceso = new ProcessBuilder(
+            "py",
+            "../python/procesamiento.py"
+        );
+
+        proceso.redirectErrorStream(true);
+
+        Process python = proceso.start();
+
+        try (OutputStreamWriter entrada = new OutputStreamWriter(
+                python.getOutputStream(), StandardCharsets.UTF_8)) {
+
+            entrada.write(json);
         }
 
-        double v1f = 0;
-        double v2f = 0;
-        String tipo = "";
+        try (BufferedReader salida = new BufferedReader(
+                new InputStreamReader(
+                    python.getInputStream(), StandardCharsets.UTF_8))) {
 
-        switch (opcion) {
-            case 1:
-                tipo = "Elastica";
-                v1f = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
-                v2f = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
-                break;
-            case 2:
-                tipo = "Inelastica";
-                v1f = (m1 * v1 + m2 * v2 + m2 * e * (v2 - v1)) / (m1 + m2);
-                v2f = (m1 * v1 + m2 * v2 + m1 * e * (v1 - v2)) / (m1 + m2);
-                break;
-            default:
-                System.out.println("Opcion invalida.");
-                return;
+            String linea;
+
+            while ((linea = salida.readLine()) != null) {
+                System.out.println(linea);
+            }
         }
 
-        double pAntes = m1 * v1 + m2 * v2;
-        double pDespues = m1 * v1f + m2 * v2f;
-        double eAntes = 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2;
-        double eDespues = 0.5 * m1 * v1f * v1f + 0.5 * m2 * v2f * v2f;
+        int resultado = python.waitFor();
 
-        System.out.println("\n--------------Resultados--------------");
-        System.out.println("Tipo: " + tipo);
-        System.out.println("Velocidades finales: v1 = " + v1f + " | v2 = " + v2f);
-        System.out.println("Momento antes: " + pAntes + " | despues: " + pDespues);
-        System.out.println("Energia antes: " + eAntes + " | despues: " + eDespues);
-
-        if (Math.abs(pAntes - pDespues) < 0.0001) {
-            System.out.println("El momento SI se conservo");
+        if (resultado == 0) {
+            System.out.println("Comunicacion Java - Python exitosa.");
         } else {
-            System.out.println("El momento NO se conservo");
-        }
-
-        if (Math.abs(eAntes - eDespues) < 0.0001) {
-            System.out.println("La energia cinetica SI se conservo");
-        } else {
-            System.out.println("La energia cinetica NO se conservo, se perdieron " + (eAntes - eDespues) + " J");
-        }
-
-        try {
-            FileWriter fw = new FileWriter("resultados.csv", true);
-            fw.write(tipo + "," + m1 + "," + v1 + "," + m2 + "," + v2 + "," + v1f + "," + v2f + "\n");
-            fw.close();
-            System.out.println("Se guardo en resultados.csv");
-        } catch (IOException ex) {
-            System.out.println("No se pudo guardar el archivo");
+            System.out.println("Python termino con un error. Codigo: " + resultado);
         }
     }
 }
