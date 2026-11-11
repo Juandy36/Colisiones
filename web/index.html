@@ -1,290 +1,463 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Colisiones - Proyecto Mecanica</title>
-<style>
-  * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; margin: 0; background: #eef2f7; color: #1f2937; }
-  header { background: #1e3a5f; color: white; padding: 14px 16px; }
-  header h1 { margin: 0; font-size: 1.3rem; }
-  header p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.85; }
-  main { max-width: 820px; margin: 0 auto; padding: 12px; }
-  nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
-  nav button { flex: 1 1 auto; padding: 10px 12px; border: none; border-radius: 6px; background: #cbd5e1; cursor: pointer; font-size: 0.95rem; }
-  nav button.activa { background: #1e3a5f; color: white; font-weight: bold; }
-  section { display: none; background: white; border-radius: 8px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-  section.visible { display: block; }
-  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-  .campos label { display: block; font-size: 0.85rem; font-weight: bold; }
-  .campos input, .campos select { width: 100%; padding: 8px; margin-top: 3px; font-size: 1rem; border: 1px solid #94a3b8; border-radius: 5px; }
-  .campos input:disabled { background: #e5e7eb; color: #6b7280; }
-  small { color: #6b7280; display: block; margin-top: 8px; }
-  button.grande { margin-top: 12px; padding: 10px 22px; font-size: 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  button.rojo { background: #dc2626; }
-  #mensaje { color: #b91c1c; font-weight: bold; min-height: 1.3em; margin: 10px 0 0; }
-  canvas { width: 100%; height: auto; border: 1px solid #94a3b8; border-radius: 6px; background: #f8fafc; margin-top: 6px; }
-  #resultado { margin-top: 10px; line-height: 1.7; }
-  #resultado .si { color: #15803d; font-weight: bold; }
-  #resultado .no { color: #b45309; font-weight: bold; }
-  .tablaCaja { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
-  th, td { border: 1px solid #cbd5e1; padding: 5px 8px; text-align: right; white-space: nowrap; }
-  th { background: #e2e8f0; }
-  td:nth-child(2) { text-align: left; }
-  #imgGrafica { max-width: 100%; height: auto; display: block; margin-top: 10px; }
-  #textoDoc { white-space: pre-wrap; word-wrap: break-word; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; font-size: 0.85rem; max-height: 65vh; overflow: auto; }
-  .aviso { color: #475569; margin-top: 10px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colisiones - Proyecto Mecanica</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #eef2f7;
+      color: #1f2937;
+    }
+
+    header {
+      background: #1e3a5f;
+      color: white;
+      padding: 14px 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    nav button {
+      flex: 1 1 auto;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #cbd5e1;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    nav button.activa {
+      background: #1e3a5f;
+      color: white;
+      font-weight: bold;
+    }
+
+    section {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    section.visible {
+      display: block;
+    }
+
+    .campos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .campos label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .campos input,
+    .campos select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 3px;
+      font-size: 1rem;
+      border: 1px solid #94a3b8;
+      border-radius: 5px;
+    }
+
+    .campos input:disabled {
+      background: #e5e7eb;
+      color: #6b7280;
+    }
+
+    small {
+      color: #6b7280;
+      display: block;
+      margin-top: 8px;
+    }
+
+    button.grande {
+      margin-top: 12px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button.rojo {
+      background: #dc2626;
+    }
+
+    #mensaje {
+      color: #b91c1c;
+      font-weight: bold;
+      min-height: 1.3em;
+      margin: 10px 0 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      background: #f8fafc;
+      margin-top: 6px;
+    }
+
+    #resultado {
+      margin-top: 10px;
+      line-height: 1.7;
+    }
+
+    #resultado .si {
+      color: #15803d;
+      font-weight: bold;
+    }
+
+    #resultado .no {
+      color: #b45309;
+      font-weight: bold;
+    }
+
+    .tablaCaja {
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85rem;
+    }
+
+    th,
+    td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 8px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #e2e8f0;
+    }
+
+    td:nth-child(2) {
+      text-align: left;
+    }
+
+    #imgGrafica {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 10px;
+    }
+
+    #textoDoc {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.85rem;
+      max-height: 65vh;
+      overflow: auto;
+    }
+
+    .aviso {
+      color: #475569;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <h1>Colisiones en una dimension</h1>
-  <p>Proyecto final de Mecanica - Jefferson, Vismar, Andres, Juan Diego y Paulo</p>
-</header>
-<main>
-<nav>
-  <button id="tabSimulador" class="activa">Simulador</button>
-  <button id="tabHistorial">Historial</button>
-  <button id="tabGrafica">Grafica</button>
-</nav>
+  <header>
+    <h1>Colisiones en una dimension</h1>
+    <p>Proyecto final de Mecanica - Jefferson, Vismar, Andres, Juan Diego y Paulo</p>
+  </header>
+  <main>
+    <nav>
+      <button id="tabSimulador" class="activa">Simulador</button>
+      <button id="tabHistorial">Historial</button>
+      <button id="tabGrafica">Grafica</button>
+    </nav>
 
-<section id="panelSimulador" class="visible">
-  <div class="campos">
-    <div><label for="tipo">Tipo de colision</label>
-      <select id="tipo"><option value="elastica">Elastica</option><option value="inelastica">Inelastica</option></select></div>
-    <div><label for="m1">Masa 1 (kg)</label><input type="number" id="m1" value="2" step="any"></div>
-    <div><label for="v1">Velocidad 1 (m/s)</label><input type="number" id="v1" value="3" step="any"></div>
-    <div><label for="m2">Masa 2 (kg)</label><input type="number" id="m2" value="1" step="any"></div>
-    <div><label for="v2">Velocidad 2 (m/s)</label><input type="number" id="v2" value="0" step="any"></div>
-    <div><label for="e">Coeficiente e (0 a 1)</label><input type="number" id="e" value="0" step="any"></div>
-  </div>
-  <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica).</small>
-  <button id="simular" class="grande">Simular</button>
-  <p id="mensaje"></p>
-  <canvas id="lienzo" width="720" height="150"></canvas>
-  <div id="resultado"></div>
-</section>
+    <section id="panelSimulador" class="visible">
+      <div class="campos">
+        <div><label for="tipo">Tipo de colision</label>
+          <select id="tipo">
+            <option value="elastica">Elastica</option>
+            <option value="inelastica">Inelastica</option>
+          </select>
+        </div>
+        <div><label for="m1">Masa 1 (kg)</label><input type="number" id="m1" value="2" step="any"></div>
+        <div><label for="v1">Velocidad 1 (m/s)</label><input type="number" id="v1" value="3" step="any"></div>
+        <div><label for="m2">Masa 2 (kg)</label><input type="number" id="m2" value="1" step="any"></div>
+        <div><label for="v2">Velocidad 2 (m/s)</label><input type="number" id="v2" value="0" step="any"></div>
+        <div><label for="e">Coeficiente e (0 a 1)</label><input type="number" id="e" value="0" step="any"></div>
+      </div>
+      <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica).</small>
+      <button id="simular" class="grande">Simular</button>
+      <p id="mensaje"></p>
+      <canvas id="lienzo" width="720" height="150"></canvas>
+      <div id="resultado"></div>
+    </section>
 
-<section id="panelHistorial">
-  <div class="tablaCaja">
-    <table id="tabla"></table>
-  </div>
-  <p id="vacioHistorial" class="aviso"></p>
-  <button id="borrar" class="grande rojo">Borrar historial</button>
-</section>
+    <section id="panelHistorial">
+      <div class="tablaCaja">
+        <table id="tabla"></table>
+      </div>
+      <p id="vacioHistorial" class="aviso"></p>
+      <button id="borrar" class="grande rojo">Borrar historial</button>
+    </section>
 
-<section id="panelGrafica">
-  <p id="mensajeGrafica" class="aviso"></p>
-  <img id="imgGrafica" alt="Grafica de momento y energia" style="display:none">
-</section>
+    <section id="panelGrafica">
+      <p id="mensajeGrafica" class="aviso"></p>
+      <img id="imgGrafica" alt="Grafica de momento y energia" style="display:none">
+    </section>
 
-</main>
+  </main>
 
-<script>
-var lienzo = document.getElementById("lienzo");
-var ctx = lienzo.getContext("2d");
-var animando = null;
+  <script>
+    var lienzo = document.getElementById("lienzo");
+    var ctx = lienzo.getContext("2d");
+    var animando = null;
 
-function $(id) { return document.getElementById(id); }
+    function $(id) { return document.getElementById(id); }
 
-var pestanas = ["Simulador", "Historial", "Grafica"];
+    var pestanas = ["Simulador", "Historial", "Grafica"];
 
-function abrir(nombre) {
-  for (var i = 0; i < pestanas.length; i++) {
-    var activa = pestanas[i] == nombre;
-    $("tab" + pestanas[i]).className = activa ? "activa" : "";
-    $("panel" + pestanas[i]).className = activa ? "visible" : "";
-  }
-  if (nombre == "Historial") { cargarHistorial(); }
-  if (nombre == "Grafica") { cargarGrafica(); }
-}
-
-for (var i = 0; i < pestanas.length; i++) {
-  (function (n) {
-    $("tab" + n).onclick = function () { abrir(n); };
-  })(pestanas[i]);
-}
-
-function actualizarE() {
-  var tipo = $("tipo").value;
-  $("e").disabled = (tipo != "inelastica");
-}
-$("tipo").onchange = actualizarE;
-actualizarE();
-
-function ancho(m) {
-  var a = 24 + m * 10;
-  if (a > 100) { a = 100; }
-  return a;
-}
-
-function dibujar(x1, x2, m1, m2) {
-  ctx.clearRect(0, 0, lienzo.width, lienzo.height);
-  ctx.fillStyle = "#94a3b8";
-  ctx.fillRect(0, 118, lienzo.width, 3);
-  ctx.fillStyle = "#2563eb";
-  ctx.fillRect(x1, 58, ancho(m1), 60);
-  ctx.fillStyle = "#ef4444";
-  ctx.fillRect(x2, 58, ancho(m2), 60);
-  ctx.fillStyle = "white";
-  ctx.font = "bold 16px Arial";
-  ctx.fillText("m1", x1 + 6, 94);
-  ctx.fillText("m2", x2 + 6, 94);
-}
-
-function fmt(n) { return n.toFixed(2); }
-
-function mostrarResultado(r) {
-  var txt = "<b>Velocidades finales:</b> v1 = <span id='v1f'>" + fmt(r.v1f) + "</span> m/s, v2 = <span id='v2f'>" + fmt(r.v2f) + "</span> m/s<br>";
-  txt += "Momento antes: <span id='pAntes'>" + fmt(r.momentoAntes) + "</span> | despues: <span id='pDespues'>" + fmt(r.momentoDespues) + "</span> kg*m/s<br>";
-  txt += "Energia antes: <span id='eAntes'>" + fmt(r.energiaAntes) + "</span> | despues: <span id='eDespues'>" + fmt(r.energiaDespues) + "</span> J<br>";
-  if (r.conservaMomento) {
-    txt += "<span id='conservaP' class='si'>El momento SI se conservo</span><br>";
-  } else {
-    txt += "<span id='conservaP' class='no'>El momento NO se conservo</span><br>";
-  }
-  if (r.conservaEnergia) {
-    txt += "<span id='conservaE' class='si'>La energia cinetica SI se conservo</span>";
-  } else {
-    txt += "<span id='conservaE' class='no'>La energia cinetica NO se conservo, se perdieron " + fmt(r.energiaAntes - r.energiaDespues) + " J</span>";
-  }
-  $("resultado").innerHTML = txt;
-}
-
-function animar(v1, v2, m1, m2, v1f, v2f) {
-  var x1 = 40;
-  var x2 = lienzo.width - 40 - ancho(m2);
-  var escala = 0.8;
-  if ((v1 - v2) * escala < 2) { escala = 2 / (v1 - v2); }
-  var choco = false;
-  var pasos = 0;
-  dibujar(x1, x2, m1, m2);
-  animando = setInterval(function () {
-    if (choco == false) {
-      x1 += v1 * escala;
-      x2 += v2 * escala;
-      if (x1 + ancho(m1) >= x2) {
-        choco = true;
-        x1 = x2 - ancho(m1);
-        $("mensaje").innerText = "Choque!";
-        $("mensaje").style.color = "#15803d";
+    function abrir(nombre) {
+      for (var i = 0; i < pestanas.length; i++) {
+        var activa = pestanas[i] == nombre;
+        $("tab" + pestanas[i]).className = activa ? "activa" : "";
+        $("panel" + pestanas[i]).className = activa ? "visible" : "";
       }
-    } else {
-      x1 += v1f * escala;
-      x2 += v2f * escala;
-      pasos++;
+      if (nombre == "Historial") { cargarHistorial(); }
+      if (nombre == "Grafica") { cargarGrafica(); }
     }
-    dibujar(x1, x2, m1, m2);
-    if (pasos > 200 || x1 + ancho(m1) < 0 || x2 > lienzo.width || x1 > lienzo.width || x2 + ancho(m2) < 0) {
-      clearInterval(animando);
-      animando = null;
+
+    for (var i = 0; i < pestanas.length; i++) {
+      (function (n) {
+        $("tab" + n).onclick = function () { abrir(n); };
+      })(pestanas[i]);
     }
-  }, 20);
-}
 
-$("simular").onclick = function () {
-  if (animando != null) { clearInterval(animando); animando = null; }
-  $("mensaje").style.color = "";
-  $("mensaje").innerText = "";
-  $("resultado").innerHTML = "";
-
-  var tipo = $("tipo").value;
-  var m1 = parseFloat($("m1").value);
-  var v1 = parseFloat($("v1").value);
-  var m2 = parseFloat($("m2").value);
-  var v2 = parseFloat($("v2").value);
-  var e = parseFloat($("e").value);
-  var usaE = (tipo == "inelastica");
-
-  if (isNaN(m1) || isNaN(v1) || isNaN(m2) || isNaN(v2) || (usaE && isNaN(e))) {
-    $("mensaje").innerText = "Escriba numeros en todos los datos.";
-    return;
-  }
-  if (m1 <= 0 || m2 <= 0) {
-    $("mensaje").innerText = "Las masas deben ser mayores a 0.";
-    return;
-  }
-  if (usaE && (e < 0 || e > 1)) {
-    $("mensaje").innerText = "e debe estar entre 0 y 1.";
-    return;
-  }
-  if (v1 <= v2) {
-    $("mensaje").innerText = "Con esas velocidades no hay choque (v1 debe ser mayor que v2).";
-    dibujar(40, lienzo.width - 40 - ancho(m2), m1, m2);
-    return;
-  }
-
-  var datos = { tipo: tipo, m1: m1, v1: v1, m2: m2, v2: v2 };
-  if (usaE) { datos.e = e; }
-
-  $("simular").disabled = true;
-  fetch("/api/calcular", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
-  }).then(function (resp) {
-    return resp.json();
-  }).then(function (r) {
-    $("simular").disabled = false;
-    if (r.error) {
-      $("mensaje").innerText = r.error;
-      return;
+    function actualizarE() {
+      var tipo = $("tipo").value;
+      $("e").disabled = (tipo != "inelastica");
     }
-    mostrarResultado(r);
-    animar(v1, v2, m1, m2, r.v1f, r.v2f);
-  }).catch(function () {
-    $("simular").disabled = false;
-    $("mensaje").innerText = "No se pudo hablar con el servidor.";
-  });
-};
-dibujar(40, lienzo.width - 40 - ancho(1), 2, 1);
+    $("tipo").onchange = actualizarE;
+    actualizarE();
 
-function cargarHistorial() {
-  fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
-    var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th></tr>";
-    for (var i = 0; i < filas.length; i++) {
-      var f = filas[i];
-      txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td></tr>";
+    function ancho(m) {
+      var a = 24 + m * 10;
+      if (a > 100) { a = 100; }
+      return a;
     }
-    $("tabla").innerHTML = txt;
-    $("vacioHistorial").innerText = filas.length == 0 ? "Aun no hay colisiones en el historial. Simule alguna en la pestaña Simulador." : "";
-  });
-}
 
-$("borrar").onclick = function () {
-  if (confirm("Seguro que quiere borrar todo el historial?")) {
-    fetch("/api/limpiar", { method: "POST" }).then(function () { cargarHistorial(); });
-  }
-};
-
-function cargarGrafica() {
-  fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
-    if (filas.length == 0) {
-      $("imgGrafica").style.display = "none";
-      $("imgGrafica").removeAttribute("src");
-      $("mensajeGrafica").innerText = "No hay colisiones en el historial, simule alguna para ver la grafica.";
-    } else {
-      $("mensajeGrafica").innerText = "Generando grafica...";
-      $("imgGrafica").onload = function () {
-        $("mensajeGrafica").innerText = "";
-        $("imgGrafica").style.display = "block";
-      };
-      $("imgGrafica").onerror = function () {
-        $("mensajeGrafica").innerText = "No se pudo generar la grafica.";
-      };
-      $("imgGrafica").src = "/grafica.png?t=" + Date.now();
+    function dibujar(x1, x2, m1, m2) {
+      ctx.clearRect(0, 0, lienzo.width, lienzo.height);
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(0, 118, lienzo.width, 3);
+      ctx.fillStyle = "#2563eb";
+      ctx.fillRect(x1, 58, ancho(m1), 60);
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(x2, 58, ancho(m2), 60);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 16px Arial";
+      ctx.fillText("m1", x1 + 6, 94);
+      ctx.fillText("m2", x2 + 6, 94);
     }
-  });
-}
 
-function cargarDoc() {
-  fetch("/api/documento/" + $("doc").value).then(function (resp) { return resp.json(); }).then(function (r) {
-    $("textoDoc").textContent = r.error ? r.error : r.texto;
-  });
-}
-$("doc").onchange = cargarDoc;
-</script>
+    function fmt(n) { return n.toFixed(2); }
+
+    function mostrarResultado(r) {
+      var txt = "<b>Velocidades finales:</b> v1 = <span id='v1f'>" + fmt(r.v1f) + "</span> m/s, v2 = <span id='v2f'>" + fmt(r.v2f) + "</span> m/s<br>";
+      txt += "Momento antes: <span id='pAntes'>" + fmt(r.momentoAntes) + "</span> | despues: <span id='pDespues'>" + fmt(r.momentoDespues) + "</span> kg*m/s<br>";
+      txt += "Energia antes: <span id='eAntes'>" + fmt(r.energiaAntes) + "</span> | despues: <span id='eDespues'>" + fmt(r.energiaDespues) + "</span> J<br>";
+      if (r.conservaMomento) {
+        txt += "<span id='conservaP' class='si'>El momento SI se conservo</span><br>";
+      } else {
+        txt += "<span id='conservaP' class='no'>El momento NO se conservo</span><br>";
+      }
+      if (r.conservaEnergia) {
+        txt += "<span id='conservaE' class='si'>La energia cinetica SI se conservo</span>";
+      } else {
+        txt += "<span id='conservaE' class='no'>La energia cinetica NO se conservo, se perdieron " + fmt(r.energiaAntes - r.energiaDespues) + " J</span>";
+      }
+      $("resultado").innerHTML = txt;
+    }
+
+    function animar(v1, v2, m1, m2, v1f, v2f) {
+      var x1 = 40;
+      var x2 = lienzo.width - 40 - ancho(m2);
+      var escala = 0.8;
+      if ((v1 - v2) * escala < 2) { escala = 2 / (v1 - v2); }
+      var choco = false;
+      var pasos = 0;
+      dibujar(x1, x2, m1, m2);
+      animando = setInterval(function () {
+        if (choco == false) {
+          x1 += v1 * escala;
+          x2 += v2 * escala;
+          if (x1 + ancho(m1) >= x2) {
+            choco = true;
+            x1 = x2 - ancho(m1);
+            $("mensaje").innerText = "Choque!";
+            $("mensaje").style.color = "#15803d";
+          }
+        } else {
+          x1 += v1f * escala;
+          x2 += v2f * escala;
+          pasos++;
+        }
+        dibujar(x1, x2, m1, m2);
+        if (pasos > 200 || x1 + ancho(m1) < 0 || x2 > lienzo.width || x1 > lienzo.width || x2 + ancho(m2) < 0) {
+          clearInterval(animando);
+          animando = null;
+        }
+      }, 20);
+    }
+
+    $("simular").onclick = function () {
+      if (animando != null) { clearInterval(animando); animando = null; }
+      $("mensaje").style.color = "";
+      $("mensaje").innerText = "";
+      $("resultado").innerHTML = "";
+
+      var tipo = $("tipo").value;
+      var m1 = parseFloat($("m1").value);
+      var v1 = parseFloat($("v1").value);
+      var m2 = parseFloat($("m2").value);
+      var v2 = parseFloat($("v2").value);
+      var e = parseFloat($("e").value);
+      var usaE = (tipo == "inelastica");
+
+      if (isNaN(m1) || isNaN(v1) || isNaN(m2) || isNaN(v2) || (usaE && isNaN(e))) {
+        $("mensaje").innerText = "Escriba numeros en todos los datos.";
+        return;
+      }
+      if (m1 <= 0 || m2 <= 0) {
+        $("mensaje").innerText = "Las masas deben ser mayores a 0.";
+        return;
+      }
+      if (usaE && (e < 0 || e > 1)) {
+        $("mensaje").innerText = "e debe estar entre 0 y 1.";
+        return;
+      }
+      if (v1 <= v2) {
+        $("mensaje").innerText = "Con esas velocidades no hay choque (v1 debe ser mayor que v2).";
+        dibujar(40, lienzo.width - 40 - ancho(m2), m1, m2);
+        return;
+      }
+
+      var datos = { tipo: tipo, m1: m1, v1: v1, m2: m2, v2: v2 };
+      if (usaE) { datos.e = e; }
+
+      $("simular").disabled = true;
+      fetch("/api/calcular", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+      }).then(function (resp) {
+        return resp.json();
+      }).then(function (r) {
+        $("simular").disabled = false;
+        if (r.error) {
+          $("mensaje").innerText = r.error;
+          return;
+        }
+        mostrarResultado(r);
+        animar(v1, v2, m1, m2, r.v1f, r.v2f);
+      }).catch(function () {
+        $("simular").disabled = false;
+        $("mensaje").innerText = "No se pudo hablar con el servidor.";
+      });
+    };
+    dibujar(40, lienzo.width - 40 - ancho(1), 2, 1);
+
+    function cargarHistorial() {
+      fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
+        var txt = "<tr><th>#</th><th>Tipo</th><th>m1</th><th>v1</th><th>m2</th><th>v2</th><th>v1f</th><th>v2f</th><th>p antes</th><th>p despues</th><th>Ec antes</th><th>Ec despues</th></tr>";
+        for (var i = 0; i < filas.length; i++) {
+          var f = filas[i];
+          txt += "<tr><td>" + (i + 1) + "</td><td>" + f.tipo + "</td><td>" + fmt(f.m1) + "</td><td>" + fmt(f.v1) + "</td><td>" + fmt(f.m2) + "</td><td>" + fmt(f.v2) + "</td><td>" + fmt(f.v1f) + "</td><td>" + fmt(f.v2f) + "</td><td>" + fmt(f.momentoAntes) + "</td><td>" + fmt(f.momentoDespues) + "</td><td>" + fmt(f.energiaAntes) + "</td><td>" + fmt(f.energiaDespues) + "</td></tr>";
+        }
+        $("tabla").innerHTML = txt;
+        $("vacioHistorial").innerText = filas.length == 0 ? "Aun no hay colisiones en el historial. Simule alguna en la pestaña Simulador." : "";
+      });
+    }
+
+    $("borrar").onclick = function () {
+      if (confirm("Seguro que quiere borrar todo el historial?")) {
+        fetch("/api/limpiar", { method: "POST" }).then(function () { cargarHistorial(); });
+      }
+    };
+
+    function cargarGrafica() {
+      fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
+        if (filas.length == 0) {
+          $("imgGrafica").style.display = "none";
+          $("imgGrafica").removeAttribute("src");
+          $("mensajeGrafica").innerText = "No hay colisiones en el historial, simule alguna para ver la grafica.";
+        } else {
+          $("mensajeGrafica").innerText = "Generando grafica...";
+          $("imgGrafica").onload = function () {
+            $("mensajeGrafica").innerText = "";
+            $("imgGrafica").style.display = "block";
+          };
+          $("imgGrafica").onerror = function () {
+            $("mensajeGrafica").innerText = "No se pudo generar la grafica.";
+          };
+          $("imgGrafica").src = "/grafica.png?t=" + Date.now();
+        }
+      });
+    }
+
+    function cargarDoc() {
+      fetch("/api/documento/" + $("doc").value).then(function (resp) { return resp.json(); }).then(function (r) {
+        $("textoDoc").textContent = r.error ? r.error : r.texto;
+      });
+    }
+    $("doc").onchange = cargarDoc;
+  </script>
 </body>
+
 </html>
