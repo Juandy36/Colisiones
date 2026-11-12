@@ -161,6 +161,117 @@ public class Servidor {
             return;
         }
 
+        if (ruta.equals("/grafica.png")) {
+
+            if (!metodo.equals("GET")) {
+                responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
+                return;
+            }
+
+            try {
+                ProcessBuilder proceso = new ProcessBuilder(
+                        "py",
+                        "../python/grafica.py");
+
+                proceso.redirectErrorStream(true);
+
+                Process python = proceso.start();
+                String salida = new String(
+                        python.getInputStream().readAllBytes(),
+                        StandardCharsets.UTF_8);
+
+                int codigo = python.waitFor();
+
+                if (codigo != 0) {
+                    responder(intercambio, 500,
+                            "{\"error\":\"No se pudo generar la grafica\"}");
+                    System.out.println(salida);
+                    return;
+                }
+
+                Path archivo = Path.of("../datos/grafica.png");
+
+                if (!Files.exists(archivo)) {
+                    responder(intercambio, 404,
+                            "{\"error\":\"No se encontro la imagen\"}");
+                    return;
+                }
+
+                byte[] imagen = Files.readAllBytes(archivo);
+
+                intercambio.getResponseHeaders().set("Content-Type", "image/png");
+                intercambio.sendResponseHeaders(200, imagen.length);
+                intercambio.getResponseBody().write(imagen);
+                intercambio.close();
+
+            } catch (Exception e) {
+                responder(intercambio, 500,
+                        "{\"error\":\"Error al generar la grafica\"}");
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        if (ruta.equals("/informe.pdf")) {
+
+            if (!metodo.equals("GET")) {
+                responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
+                return;
+            }
+
+            try {
+                ProcessBuilder proceso = new ProcessBuilder(
+                        "py",
+                        "../python/informe.py");
+
+                proceso.redirectErrorStream(true);
+
+                Process python = proceso.start();
+
+                String salida = new String(
+                        python.getInputStream().readAllBytes(),
+                        StandardCharsets.UTF_8);
+
+                int codigo = python.waitFor();
+
+                if (codigo != 0) {
+                    responder(intercambio, 500,
+                            "{\"error\":\"No se pudo generar el PDF\"}");
+                    System.out.println(salida);
+                    return;
+                }
+
+                Path archivo = Path.of("../datos/informe_colision.pdf");
+
+                if (!Files.exists(archivo)) {
+                    responder(intercambio, 404,
+                            "{\"error\":\"No se encontro el PDF\"}");
+                    return;
+                }
+
+                byte[] contenido = Files.readAllBytes(archivo);
+
+                intercambio.getResponseHeaders().set(
+                        "Content-Type", "application/pdf");
+
+                intercambio.getResponseHeaders().set(
+                        "Content-Disposition",
+                        "attachment; filename=informe_colision.pdf");
+
+                intercambio.sendResponseHeaders(200, contenido.length);
+                intercambio.getResponseBody().write(contenido);
+                intercambio.close();
+
+            } catch (Exception e) {
+                responder(intercambio, 500,
+                        "{\"error\":\"Error al generar el informe\"}");
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
         responder(intercambio, 404, "{\"error\":\"Ruta no encontrada\"}");
     }
 

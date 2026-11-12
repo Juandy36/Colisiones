@@ -246,8 +246,11 @@
     </section>
 
     <section id="panelGrafica">
-      <p id="mensajeGrafica" class="aviso"></p>
-      <img id="imgGrafica" alt="Grafica de momento y energia" style="display:none">
+      <button id="generarPDF" class="grande">
+        Descargar informe PDF
+      </button>
+
+      <p id="mensajePDF" class="aviso"></p>
     </section>
 
   </main>
@@ -268,7 +271,6 @@
         $("panel" + pestanas[i]).className = activa ? "visible" : "";
       }
       if (nombre == "Historial") { cargarHistorial(); }
-      if (nombre == "Grafica") { cargarGrafica(); }
     }
 
     for (var i = 0; i < pestanas.length; i++) {
@@ -415,25 +417,40 @@
       }
     };
 
-    function cargarGrafica() {
-      fetch("/api/historial").then(function (resp) { return resp.json(); }).then(function (filas) {
-        if (filas.length == 0) {
-          $("imgGrafica").style.display = "none";
-          $("imgGrafica").removeAttribute("src");
-          $("mensajeGrafica").innerText = "No hay colisiones en el historial, simule alguna para ver la grafica.";
-        } else {
-          $("mensajeGrafica").innerText = "Generando grafica...";
-          $("imgGrafica").onload = function () {
-            $("mensajeGrafica").innerText = "";
-            $("imgGrafica").style.display = "block";
-          };
-          $("imgGrafica").onerror = function () {
-            $("mensajeGrafica").innerText = "No se pudo generar la grafica.";
-          };
-          $("imgGrafica").src = "/grafica.png?t=" + Date.now();
-        }
-      });
-    }
+    $("generarPDF").onclick = function () {
+
+      $("mensajePDF").innerText = "Generando informe...";
+
+      fetch("/informe.pdf")
+        .then(function (respuesta) {
+
+          if (!respuesta.ok) {
+            throw new Error("No se pudo generar el informe.");
+          }
+
+          return respuesta.blob();
+        })
+        .then(function (archivo) {
+
+          var url = URL.createObjectURL(archivo);
+
+          var enlace = document.createElement("a");
+          enlace.href = url;
+          enlace.download = "informe_colision.pdf";
+
+          enlace.click();
+
+          URL.revokeObjectURL(url);
+
+          $("mensajePDF").innerText = "Informe descargado correctamente.";
+        })
+        .catch(function (error) {
+
+          $("mensajePDF").innerText = error.message;
+
+        });
+
+    };
 
     function cargarDoc() {
       fetch("/api/documento/" + $("doc").value).then(function (resp) { return resp.json(); }).then(function (r) {

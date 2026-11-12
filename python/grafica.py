@@ -1,68 +1,105 @@
+
+import json
+import sys
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-nombres=[]
-p_antes=[]
-p_despues=[]
-e_antes=[]
-e_despues=[]
+carpeta_proyecto = Path(__file__).resolve().parent.parent
+archivo_historial = carpeta_proyecto / "datos" / "historial.json"
+archivo_grafica = carpeta_proyecto / "datos" / "grafica.png"
 
-try:
-    archivo=open("resultados.csv", "r", encoding="utf-8")
-except FileNotFoundError:
-    print("No existe resultados.csv, corre primero Main.java")
-    exit()
+def generar_grafica():
 
-with archivo:
-    lineas=archivo.readlines()
-    for L in lineas:
-        partes=L.strip().split(",")
-        if len(partes) < 7:
-            continue
-        tipo=partes[0]
-        m1=float(partes[1])
-        v1=float(partes[2])
-        m2=float(partes[3])
-        v2=float(partes[4])
-        v1f=float(partes[5])
-        v2f=float(partes[6])
+    if not archivo_historial.exists():
+        raise FileNotFoundError("No se encontro el historial.")
 
-        nombres.append(f"{len(nombres)+1}. {tipo}")
-        p_antes.append(m1*v1 + m2*v2)
-        p_despues.append(m1*v1f + m2*v2f)
-        e_antes.append(0.5*m1*v1**2 + 0.5*m2*v2**2)
-        e_despues.append(0.5*m1*v1f**2 + 0.5*m2*v2f**2)
+    with open(archivo_historial, "r", encoding="utf-8") as archivo:
+        historial = json.load(archivo)
 
-if len(nombres) == 0:
-    print("No hay colisiones en resultados.csv, corre primero Main.java")
-else:
-    ancho=0.35
-    x=[]
-    xIzq=[]   
-    xDer=[]   
-    for i in range(len(nombres)):
-        x.append(i)
-        xIzq.append(i-ancho/2)
-        xDer.append(i+ancho/2)
+    if not historial:
+        raise ValueError("No hay simulaciones para graficar.")
 
-    plt.figure(figsize=(10,4))
+    nombres = []
+    momento_antes = []
+    momento_despues = []
+    energia_antes = []
+    energia_despues = []
 
-    plt.subplot(1,2,1)
-    plt.bar(xIzq, p_antes, ancho, label="Antes")
-    plt.bar(xDer, p_despues, ancho, label="Despues")
-    plt.xticks(x, nombres, rotation=45, ha="right")   
-    plt.ylabel("Momento (kg*m/s)")
-    plt.title("Momento lineal")
-    plt.legend()
+    for i, registro in enumerate(historial):
 
-    #grafica de energia
-    plt.subplot(1,2,2)
-    plt.bar(xIzq, e_antes, ancho, label="Antes")
-    plt.bar(xDer, e_despues, ancho, label="Despues")
-    plt.xticks(x, nombres, rotation=45, ha="right") 
-    plt.ylabel("Energia cinetica (J)")
-    plt.title("Energia cinetica")
-    plt.legend()
+        parametros = registro["parametros"]
+        resultados = registro["resultados"]
 
-    plt.tight_layout()
-    plt.savefig("grafica.png")   
-    plt.show()
+        nombres.append(f"{i + 1}. {parametros['tipo'].capitalize()}")
+
+        momento_antes.append(resultados["momentoAntes"])
+        momento_despues.append(resultados["momentoDespues"])
+
+        energia_antes.append(resultados["energiaAntes"])
+        energia_despues.append(resultados["energiaDespues"])
+
+    posiciones = np.arange(len(nombres))
+    ancho = 0.35
+
+    figura, ejes = plt.subplots(1, 2, figsize=(12, 5))
+
+    ejes[0].bar(
+        posiciones - ancho / 2,
+        momento_antes,
+        ancho,
+        label="Antes"
+    )
+
+    ejes[0].bar(
+        posiciones + ancho / 2,
+        momento_despues,
+        ancho,
+        label="Despues"
+    )
+
+    ejes[0].set_title("Conservacion del momento lineal")
+    ejes[0].set_ylabel("Momento (kg*m/s)")
+    ejes[0].set_xticks(posiciones)
+    ejes[0].set_xticklabels(nombres, rotation=45, ha="right")
+    ejes[0].legend()
+    ejes[0].grid(axis="y", alpha=0.3)
+
+    ejes[1].bar(
+        posiciones - ancho / 2,
+        energia_antes,
+        ancho,
+        label="Antes"
+    )
+
+    ejes[1].bar(
+        posiciones + ancho / 2,
+        energia_despues,
+        ancho,
+        label="Despues"
+    )
+
+    ejes[1].set_title("Conservacion de la energia cinetica")
+    ejes[1].set_ylabel("Energia (J)")
+    ejes[1].set_xticks(posiciones)
+    ejes[1].set_xticklabels(nombres, rotation=45, ha="right")
+    ejes[1].legend()
+    ejes[1].grid(axis="y", alpha=0.3)
+
+    figura.suptitle("Analisis de las colisiones", fontsize=15)
+    figura.tight_layout()
+
+    figura.savefig(archivo_grafica, dpi=150, bbox_inches="tight")
+    plt.close(figura)
+
+if __name__ == "__main__":
+    try:
+        generar_grafica()
+        print("Grafica generada correctamente.")
+    except Exception as error:
+        print(str(error), file=sys.stderr)
+        sys.exit(1)
