@@ -1,5 +1,4 @@
 public class Colision {
-
     private String tipo;
     private double masa1;
     private double masa2;

@@ -37,10 +37,6 @@ public class HistorialManager {
 
     private static void guardar(JsonArray historial) throws IOException {
         Files.createDirectories(ARCHIVO.getParent());
-        Files.writeString(
-                ARCHIVO,
-                gson.toJson(historial),
-                StandardCharsets.UTF_8
-        );
+        Files.writeString(ARCHIVO, gson.toJson(historial), StandardCharsets.UTF_8);
     }
 }

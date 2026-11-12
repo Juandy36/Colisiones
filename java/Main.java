@@ -25,9 +25,7 @@ public class Main {
         String json = JsonManager.convertirAJson(colision);
 
         JsonManager.guardar(json, "../datos/colision.json");
-
         JsonObject resultados = ejecutarPython(json);
-
         JsonObject registro = new JsonObject();
 
         String fecha = LocalDateTime.now().format(
@@ -45,23 +43,19 @@ public class Main {
     public static JsonObject ejecutarPython(String json)
             throws IOException, InterruptedException {
 
-        ProcessBuilder proceso = new ProcessBuilder(
-                "py",
-                "../python/procesamiento.py");
+        ProcessBuilder proceso = new ProcessBuilder("py", "../python/procesamiento.py");
 
         proceso.redirectErrorStream(true);
         Process python = proceso.start();
 
-        try (OutputStreamWriter entrada = new OutputStreamWriter(
-                python.getOutputStream(), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter entrada = new OutputStreamWriter(python.getOutputStream(), StandardCharsets.UTF_8)) {
             entrada.write(json);
         }
 
         StringBuilder respuesta = new StringBuilder();
 
         try (BufferedReader salida = new BufferedReader(
-                new InputStreamReader(
-                        python.getInputStream(), StandardCharsets.UTF_8))) {
+                new InputStreamReader(python.getInputStream(), StandardCharsets.UTF_8))) {
 
             String linea;
 

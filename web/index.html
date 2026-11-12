@@ -139,21 +139,6 @@
       margin-top: 6px;
     }
 
-    #resultado {
-      margin-top: 10px;
-      line-height: 1.7;
-    }
-
-    #resultado .si {
-      color: #15803d;
-      font-weight: bold;
-    }
-
-    #resultado .no {
-      color: #b45309;
-      font-weight: bold;
-    }
-
     .tablaCaja {
       overflow-x: auto;
     }
@@ -234,7 +219,6 @@
       <button id="simular" class="grande">Simular</button>
       <p id="mensaje"></p>
       <canvas id="lienzo" width="720" height="150"></canvas>
-      <div id="resultado"></div>
     </section>
 
     <section id="panelHistorial">
@@ -301,23 +285,6 @@
 
     function fmt(n) { return n.toFixed(2); }
 
-    function mostrarResultado(r) {
-      var txt = "<b>Velocidades finales:</b> v1 = <span id='v1f'>" + fmt(r.v1f) + "</span> m/s, v2 = <span id='v2f'>" + fmt(r.v2f) + "</span> m/s<br>";
-      txt += "Momento antes: <span id='pAntes'>" + fmt(r.momentoAntes) + "</span> | despues: <span id='pDespues'>" + fmt(r.momentoDespues) + "</span> kg*m/s<br>";
-      txt += "Energia antes: <span id='eAntes'>" + fmt(r.energiaAntes) + "</span> | despues: <span id='eDespues'>" + fmt(r.energiaDespues) + "</span> J<br>";
-      if (r.conservaMomento) {
-        txt += "<span id='conservaP' class='si'>El momento SI se conservo</span><br>";
-      } else {
-        txt += "<span id='conservaP' class='no'>El momento NO se conservo</span><br>";
-      }
-      if (r.conservaEnergia) {
-        txt += "<span id='conservaE' class='si'>La energia cinetica SI se conservo</span>";
-      } else {
-        txt += "<span id='conservaE' class='no'>La energia cinetica NO se conservo, se perdieron " + fmt(r.energiaAntes - r.energiaDespues) + " J</span>";
-      }
-      $("resultado").innerHTML = txt;
-    }
-
     function animar(v1, v2, m1, m2, v1f, v2f) {
       var x1 = 40;
       var x2 = lienzo.width - 40 - ancho(m2);
@@ -333,8 +300,6 @@
           if (x1 + ancho(m1) >= x2) {
             choco = true;
             x1 = x2 - ancho(m1);
-            $("mensaje").innerText = "Choque!";
-            $("mensaje").style.color = "#15803d";
           }
         } else {
           x1 += v1f * escala;
@@ -353,7 +318,6 @@
       if (animando != null) { clearInterval(animando); animando = null; }
       $("mensaje").style.color = "";
       $("mensaje").innerText = "";
-      $("resultado").innerHTML = "";
 
       var tipo = $("tipo").value;
       var m1 = parseFloat($("m1").value);
@@ -390,7 +354,8 @@
           $("mensaje").innerText = r.error;
           return;
         }
-        mostrarResultado(r);
+        $("mensaje").style.color = "#15803d";
+        $("mensaje").innerText = "Simulacion realizada. Ve a la pestana Grafica para descargar el PDF con los resultados.";
         animar(v1, v2, m1, m2, r.v1f, r.v2f);
       }).catch(function () {
         $("simular").disabled = false;
