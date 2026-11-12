@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Main {
     public static void main(String[] args) {
@@ -24,7 +26,20 @@ public class Main {
 
         JsonManager.guardar(json, "../datos/colision.json");
 
-        return ejecutarPython(json);
+        JsonObject resultados = ejecutarPython(json);
+
+        JsonObject registro = new JsonObject();
+
+        String fecha = LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+        registro.addProperty("fecha", fecha);
+        registro.add("parametros", JsonParser.parseString(json).getAsJsonObject());
+        registro.add("resultados", resultados);
+
+        HistorialManager.agregar(registro);
+
+        return resultados;
     }
 
     public static JsonObject ejecutarPython(String json)

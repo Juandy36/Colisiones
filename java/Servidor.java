@@ -1,3 +1,4 @@
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -57,9 +58,8 @@ public class Servidor {
             try {
 
                 String cuerpo = new String(
-                    intercambio.getRequestBody().readAllBytes(),
-                    StandardCharsets.UTF_8
-                );
+                        intercambio.getRequestBody().readAllBytes(),
+                        StandardCharsets.UTF_8);
 
                 JsonObject datos = JsonParser.parseString(cuerpo).getAsJsonObject();
 
@@ -71,12 +71,11 @@ public class Servidor {
                 double velocidad2 = datos.get("v2").getAsDouble();
 
                 Colision colision = new Colision(
-                    tipo,
-                    masa1,
-                    masa2,
-                    velocidad1,
-                    velocidad2
-                );
+                        tipo,
+                        masa1,
+                        masa2,
+                        velocidad1,
+                        velocidad2);
 
                 JsonObject resultados = Main.procesarColision(colision);
 
@@ -85,13 +84,77 @@ public class Servidor {
             } catch (IllegalArgumentException | IllegalStateException e) {
 
                 responder(intercambio, 400,
-                    "{\"error\":\"" + e.getMessage() + "\"}");
+                        "{\"error\":\"" + e.getMessage() + "\"}");
 
             } catch (Exception e) {
 
                 responder(intercambio, 500,
-                    "{\"error\":\"Error al procesar la colision\"}");
+                        "{\"error\":\"Error al procesar la colision\"}");
 
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        if (ruta.equals("/api/historial")) {
+
+            if (!metodo.equals("GET")) {
+                responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
+                return;
+            }
+
+            try {
+                JsonArray historial = HistorialManager.obtener();
+                JsonArray respuesta = new JsonArray();
+
+                for (int i = 0; i < historial.size(); i++) {
+
+                    JsonObject registro = historial.get(i).getAsJsonObject();
+                    JsonObject parametros = registro.getAsJsonObject("parametros");
+                    JsonObject resultados = registro.getAsJsonObject("resultados");
+
+                    JsonObject fila = new JsonObject();
+
+                    fila.addProperty("tipo", parametros.get("tipo").getAsString());
+                    fila.addProperty("m1", parametros.get("masa1").getAsDouble());
+                    fila.addProperty("v1", parametros.get("velocidad1").getAsDouble());
+                    fila.addProperty("m2", parametros.get("masa2").getAsDouble());
+                    fila.addProperty("v2", parametros.get("velocidad2").getAsDouble());
+
+                    fila.add("v1f", resultados.get("v1f"));
+                    fila.add("v2f", resultados.get("v2f"));
+                    fila.add("momentoAntes", resultados.get("momentoAntes"));
+                    fila.add("momentoDespues", resultados.get("momentoDespues"));
+                    fila.add("energiaAntes", resultados.get("energiaAntes"));
+                    fila.add("energiaDespues", resultados.get("energiaDespues"));
+
+                    respuesta.add(fila);
+                }
+
+                responder(intercambio, 200, respuesta.toString());
+
+            } catch (Exception e) {
+                responder(intercambio, 500, "{\"error\":\"No se pudo cargar el historial\"}");
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        if (ruta.equals("/api/limpiar")) {
+
+            if (!metodo.equals("POST")) {
+                responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
+                return;
+            }
+
+            try {
+                HistorialManager.limpiar();
+                responder(intercambio, 200, "{\"mensaje\":\"Historial eliminado correctamente\"}");
+
+            } catch (IOException e) {
+                responder(intercambio, 500, "{\"error\":\"No se pudo limpiar el historial\"}");
                 e.printStackTrace();
             }
 
@@ -107,9 +170,8 @@ public class Servidor {
         byte[] contenido = respuesta.getBytes(StandardCharsets.UTF_8);
 
         intercambio.getResponseHeaders().set(
-            "Content-Type",
-            "application/json; charset=UTF-8"
-        );
+                "Content-Type",
+                "application/json; charset=UTF-8");
 
         intercambio.sendResponseHeaders(estado, contenido.length);
         intercambio.getResponseBody().write(contenido);
