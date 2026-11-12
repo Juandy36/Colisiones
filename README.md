@@ -59,7 +59,7 @@ CollisionArena/
 │   ├── lib/
 │   │   └── gson-2.15.0.jar
 │   ├── Main.java
-│   ├── colision.java
+│   ├── Colision.java
 │   ├── JsonManager.java
 │   ├── HistorialManager.java
 │   └── Servidor.java
@@ -122,7 +122,7 @@ py -m pip install matplotlib numpy reportlab
 Desde la carpeta `java`, ejecutar:
 
 ```powershell
-javac --add-modules jdk.httpserver -cp ".;lib/gson-2.15.0.jar" Main.java colision.java JsonManager.java HistorialManager.java Servidor.java
+javac --add-modules jdk.httpserver -cp ".;lib/gson-2.15.0.jar" Main.java Colision.java JsonManager.java HistorialManager.java Servidor.java
 ```
 
 **4. Iniciar el servidor**
