@@ -20,7 +20,7 @@ Proyecto final de **Programación de Computadores**: simulador web de colisiones
 |---|---|---|---|
 | `java/Main.java` | Java | Punto de entrada. Arranca el servidor y orquesta una colisión: JSON → Python → historial. | 75 |
 | `java/Servidor.java` | Java | **Servidor HTTP** (`com.sun.net.httpserver`). Define las rutas y responde JSON, HTML, PNG y PDF. | 291 |
-| `java/colision.java` | Java | Clase `Colision`: guarda los datos de entrada y los **valida** en el constructor. | 50 |
+| `java/Colision.java` | Java | Clase `Colision`: guarda los datos de entrada y los **valida** en el constructor. | 50 |
 | `java/JsonManager.java` | Java | Convierte un objeto `Colision` a JSON con Gson y lo guarda en `datos/colision.json`. | 24 |
 | `java/HistorialManager.java` | Java | Lee, agrega y limpia el historial (`datos/historial.json`). | 42 |
 | `java/lib/gson-2.15.0.jar` | librería | Gson, de Google, para manejar JSON en Java. | – |
@@ -136,7 +136,7 @@ Otras rutas:
 
 **Importante:** el navegador manda `m1, v1, m2, v2` pero la clase `Colision` usa `masa1, velocidad1, ...`. Gson serializa con los **nombres de los campos de la clase**, así que Python recibe `masa1, velocidad1...`, y al armar el historial (línea 119-123) Java traduce de vuelta a `m1, v1...` para la tabla.
 
-### 3.3 `colision.java` (clase `Colision`)
+### 3.3 `Colision.java` (clase `Colision`)
 
 Es una **clase modelo** (POJO): campos `private`, constructor y *getters*.
 
@@ -205,7 +205,7 @@ echo {"tipo":"elastica","masa1":2,"masa2":1,"velocidad1":3,"velocidad2":0} | py 
 
 Usa **reportlab** (`canvas.Canvas`) para dibujar el PDF línea por línea con `drawString(x, y, texto)` y baja la posición `y` en cada línea. Secciones: encabezado, 1. Parámetros, 2. Resultados, 3. Análisis de conservación, 4. Gráfica (inserta `grafica.png` con `drawImage`). Toma solo `historial[-1]` (la **última** simulación).
 
-> ⚠️ **Este archivo tiene un error de indentación que impide que funcione. Ver sección 8, punto 1.** Conviene conocerlo antes de sustentar.
+> Este archivo tenía un error de indentación que impedía generar el PDF; ya está arreglado (ver sección 8, punto 1).
 
 ### 3.9 `index.html` (la interfaz)
 
@@ -431,7 +431,6 @@ Para cambiar todo el esquema azul: `Ctrl+F` de `#1e3a5f` y `#2563eb` y reemplaza
    ```powershell
    javac --add-modules jdk.httpserver -cp ".;lib/gson-2.15.0.jar" Main.java Colision.java JsonManager.java HistorialManager.java Servidor.java
    ```
-   > Escribe `Colision.java` con **C mayúscula** (ver sección 8, punto 2).
 2. **Ejecutar** (misma carpeta):
    ```powershell
    java --add-modules jdk.httpserver -cp ".;lib/gson-2.15.0.jar" Main
@@ -442,14 +441,15 @@ Para cambiar todo el esquema azul: `Ctrl+F` de `#1e3a5f` y `#2563eb` y reemplaza
 5. **Historial:** aparecen las dos filas con sus resultados.
 6. Muestra `datos/historial.json` y `datos/colision.json`: explica quién los escribe.
 7. **Gráfica:** abre `http://localhost:8080/grafica.png` para mostrar el PNG generado con matplotlib.
-8. Si piden ver el flujo en vivo: la consola de Java imprime "Archivo JSON guardado correctamente." en cada simulación.
+8. Pestaña **Grafica** → botón **Descargar informe PDF**: descarga el informe de la última simulación con su gráfica.
+9. Si piden ver el flujo en vivo: la consola de Java imprime "Archivo JSON guardado correctamente." en cada simulación.
 
 ---
 
 ## 8. Cosas flojas del proyecto (conócelas antes de que las encuentren)
 
-1. **🔴 `informe.py` está roto (el botón "Descargar informe PDF" no funciona).** Las líneas 105-121 (`pdf.setFont(... "4. Grafica ...")`, `drawImage`, `showPage`, `save`) quedaron **fuera de la función `generar_informe()`** (sin sangría). Al ejecutar el archivo, Python llega a la línea 105 y falla con `NameError: name 'pdf' is not defined`; el servidor responde 500 "No se pudo generar el informe". Además, `pdf.showPage()` y `pdf.save()` están después de un `raise` dentro del `else`, así que nunca se ejecutarían. *Lo comprobé ejecutándolo.* **Arreglo:** indentar las líneas 105-121 una vez más (4 espacios) para que queden dentro de la función, y sacar `showPage()` y `save()` del `else` (que queden al nivel del `if`). Si te preguntan, es mejor decirlo y mostrar que sabes por qué falla.
-2. **El comando de compilación del README falla** con `colision.java` en minúscula: el archivo declara `public class Colision`, y Java exige que el archivo se llame igual (`Colision.java`). En Windows, escribir `Colision.java` en el comando sí compila. La solución limpia es renombrar el archivo a `Colision.java` y actualizar el README. *(Comprobado: con minúscula da `class Colision is public, should be declared in a file named Colision.java`.)*
+1. **✅ Arreglado – `informe.py` no generaba el PDF.** Las últimas líneas (título "4. Grafica", `drawImage`, `showPage`, `save`) habían quedado **fuera de la función `generar_informe()`** por la sangría, y Python fallaba con `NameError: name 'pdf' is not defined`. Además `showPage()` y `save()` estaban después de un `raise` y nunca se ejecutaban. Se metió el bloque dentro de la función y se cambió el `if/else` por una validación previa (`if not archivo_grafica.exists(): raise ...`). Si preguntan: *"en Python la sangría define qué está dentro de una función; una sangría mal puesta saca el código de la función y las variables locales dejan de existir."*
+2. **✅ Arreglado – el archivo se llamaba `colision.java` en minúscula.** Java exige que una clase `public` esté en un archivo con su mismo nombre exacto (`Colision.java`); con el comando del README daba `class Colision is public, should be declared in a file named Colision.java`. Se renombró el archivo y se actualizó el README.
 3. **Rutas relativas (`../web`, `../python`, `../datos`):** el servidor solo funciona si se ejecuta **desde la carpeta `java/`**. Desde otra carpeta no encuentra nada.
 4. **Se usa `py` (lanzador de Windows):** en Linux/Mac habría que cambiarlo por `python3` (3 lugares, ver 6.7).
 5. **Si v1 ≤ v2 y se llama a la API directamente**, Python rechaza el caso ("Los cuerpos no se estan acercando") y Java responde un **500 genérico** en vez de un 400 con el mensaje. En la página no se nota porque el navegador valida antes.
@@ -488,9 +488,9 @@ Estos valores los verifiqué ejecutando el proyecto. Si preguntan algo más de f
 - **Java = servidor y coordinador** (`Servidor.java`, `Main.java`). **Python = cálculo, gráfica y PDF.** **HTML/JS = interfaz.**
 - Java ↔ Python: `ProcessBuilder` + JSON por stdin/stdout (`Main.java:43-74`).
 - Navegador ↔ Java: `fetch` + JSON sobre HTTP, puerto **8080** (`Servidor.java:18`).
-- Validación en 3 capas: navegador (`index.html:328-340`), `Colision` (`colision.java:11-22`), Python (`procesamiento.py:12-24`).
+- Validación en 3 capas: navegador (`index.html:328-340`), `Colision` (`Colision.java:11-22`), Python (`procesamiento.py:12-24`).
 - Datos en `datos/`: `historial.json`, `colision.json`, `grafica.png`, `informe_colision.pdf` (carpeta ignorada por git).
 - Errores HTTP: 400 dato inválido, 404 no existe, 405 método incorrecto, 500 error interno.
 - Compilar y ejecutar **desde `java/`** con `--add-modules jdk.httpserver` y `lib/gson-2.15.0.jar`.
 - Colores de bloques: `index.html:276` y `278`. Velocidad de animación: `index.html:314`. Decimales: `index.html:286`.
-- Bugs conocidos: `informe.py` (indentación, líneas 105-121) y `colision.java` (nombre en minúscula).
+- Errores que ya arreglamos: `informe.py` (el final estaba fuera de la función) y `colision.java` → `Colision.java`.
