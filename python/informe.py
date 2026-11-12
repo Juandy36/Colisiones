@@ -102,22 +102,20 @@ def generar_informe():
 
     y -= 40
 
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawString(50, y, "4. Grafica de la colision")
+pdf.setFont("Helvetica-Bold", 14)
+pdf.drawString(50, y, "4. Grafica de la colision")
 
-    y -= 230
-
-    if archivo_grafica.exists():
-        pdf.drawImage(
-            ImageReader(str(archivo_grafica)),
-            50,
-            y,
-            width=500,
-            height=200,
-            preserveAspectRatio=True
-        )
-
-    y -= 20
+if archivo_grafica.exists():
+    pdf.drawImage(
+        ImageReader(str(archivo_grafica)),
+        50,
+        20,
+        width=420,
+        height=175,
+        preserveAspectRatio=True
+    )
+else:
+    raise FileNotFoundError("No se encontro la grafica.")
 
     pdf.showPage()
     pdf.save()
