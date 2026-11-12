@@ -23,22 +23,24 @@ def calcular_colision(datos):
     if velocidad1 <= velocidad2:
         raise ValueError("Los cuerpos no se estan acercando.")
 
-    if tipo == "elastica":
-        e = 1.0
-    else:
-        e = 0.0
-
     suma_masas = masa1 + masa2
 
-    velocidad1f = (
-        masa1 * velocidad1 + masa2 * velocidad2
-        - masa2 * e * (velocidad1 - velocidad2)
-    ) / suma_masas
+    if tipo == "elastica":
+        velocidad1f = (
+            (masa1 - masa2) * velocidad1 + 2 * masa2 * velocidad2
+        ) / suma_masas
 
-    velocidad2f = (
-        masa1 * velocidad1 + masa2 * velocidad2
-        + masa1 * e * (velocidad1 - velocidad2)
-    ) / suma_masas
+        velocidad2f = (
+            2 * masa1 * velocidad1 + (masa2 - masa1) * velocidad2
+        ) / suma_masas
+
+    else:
+        velocidad_final = (
+            masa1 * velocidad1 + masa2 * velocidad2
+        ) / suma_masas
+
+        velocidad1f = velocidad_final
+        velocidad2f = velocidad_final
 
     momento_antes = masa1 * velocidad1 + masa2 * velocidad2
     momento_despues = masa1 * velocidad1f + masa2 * velocidad2f
