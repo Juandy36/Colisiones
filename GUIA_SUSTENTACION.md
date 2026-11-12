@@ -29,6 +29,7 @@ Proyecto final de **Programación de Computadores**: simulador web de colisiones
 | `python/informe.py` | Python | Genera `datos/informe_colision.pdf` con reportlab (última simulación). | 125 |
 | `web/index.html` | HTML+CSS+JS | **Interfaz:** formulario, animación en canvas, tabla de historial, botón de PDF. | 436 |
 | `datos/` | carpeta | Se crea sola al simular. **Ignorada por git** (`.gitignore`). | – |
+| `requirements.txt` | texto | Dependencias de Python (`matplotlib`, `numpy`, `reportlab`). Se instalan con `py -m pip install -r requirements.txt`. | 3 |
 | `docs/informe.txt` | texto | Informe del proyecto (ver sección 8: está desactualizado). | 45 |
 | `README.md` | texto | Descripción y cómo compilar/ejecutar. | 158 |
 
@@ -425,7 +426,7 @@ Para cambiar todo el esquema azul: `Ctrl+F` de `#1e3a5f` y `#2563eb` y reemplaza
 
 ## 7. Demostración sugerida (3-5 min)
 
-**Antes de sustentar verifica:** `java -version`, `javac -version`, `py --version`, que estén instaladas las librerías (`py -m pip install matplotlib numpy reportlab`), y que **nada más use el puerto 8080**.
+**Antes de sustentar verifica:** `java -version`, `javac -version`, `py --version`, que estén instaladas las librerías (`py -m pip install -r requirements.txt`), y que **nada más use el puerto 8080**.
 
 1. **Compilar** (desde la carpeta `java`):
    ```powershell

@@ -101,7 +101,7 @@ Para ejecutar el proyecto se necesita:
 - Java JDK con soporte para el módulo `jdk.httpserver`.
 - Python 3.
 - Pip para instalar las dependencias de Python.
-- Las librerías Gson, Matplotlib, NumPy y ReportLab.
+- Las librerías Gson (incluida en `java/lib`) y las de Python listadas en `requirements.txt` (Matplotlib, NumPy y ReportLab).
 
 ## Instalación y ejecución
 
@@ -114,7 +114,7 @@ git clone URL_DEL_REPOSITORIO
 **2. Instalar las dependencias de Python**
 
 ```bash
-py -m pip install matplotlib numpy reportlab
+py -m pip install -r requirements.txt
 ```
 
 **3. Compilar el proyecto Java**
