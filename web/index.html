@@ -230,9 +230,7 @@
         <div><label for="v1">Velocidad 1 (m/s)</label><input type="number" id="v1" value="3" step="any"></div>
         <div><label for="m2">Masa 2 (kg)</label><input type="number" id="m2" value="1" step="any"></div>
         <div><label for="v2">Velocidad 2 (m/s)</label><input type="number" id="v2" value="0" step="any"></div>
-        <div><label for="e">Coeficiente e (0 a 1)</label><input type="number" id="e" value="0" step="any"></div>
       </div>
-      <small>e solo se usa en la inelastica (0 = quedan pegados, 1 = elastica).</small>
       <button id="simular" class="grande">Simular</button>
       <p id="mensaje"></p>
       <canvas id="lienzo" width="720" height="150"></canvas>
@@ -278,13 +276,6 @@
         $("tab" + n).onclick = function () { abrir(n); };
       })(pestanas[i]);
     }
-
-    function actualizarE() {
-      var tipo = $("tipo").value;
-      $("e").disabled = (tipo != "inelastica");
-    }
-    $("tipo").onchange = actualizarE;
-    actualizarE();
 
     function ancho(m) {
       var a = 24 + m * 10;
@@ -367,19 +358,13 @@
       var v1 = parseFloat($("v1").value);
       var m2 = parseFloat($("m2").value);
       var v2 = parseFloat($("v2").value);
-      var e = parseFloat($("e").value);
-      var usaE = (tipo == "inelastica");
 
-      if (isNaN(m1) || isNaN(v1) || isNaN(m2) || isNaN(v2) || (usaE && isNaN(e))) {
+      if (isNaN(m1) || isNaN(v1) || isNaN(m2) || isNaN(v2)) {
         $("mensaje").innerText = "Escriba numeros en todos los datos.";
         return;
       }
       if (m1 <= 0 || m2 <= 0) {
         $("mensaje").innerText = "Las masas deben ser mayores a 0.";
-        return;
-      }
-      if (usaE && (e < 0 || e > 1)) {
-        $("mensaje").innerText = "e debe estar entre 0 y 1.";
         return;
       }
       if (v1 <= v2) {
@@ -389,7 +374,6 @@
       }
 
       var datos = { tipo: tipo, m1: m1, v1: v1, m2: m2, v2: v2 };
-      if (usaE) { datos.e = e; }
 
       $("simular").disabled = true;
       fetch("/api/calcular", {

@@ -1,4 +1,3 @@
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -12,27 +11,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Servidor {
-
     private HttpServer servidor;
 
     public void iniciar() throws IOException {
-
         servidor = HttpServer.create(new InetSocketAddress(8080), 0);
-
         servidor.createContext("/", this::manejarSolicitud);
-
         servidor.start();
 
         System.out.println("Servidor iniciado en http://localhost:8080");
     }
 
     private void manejarSolicitud(HttpExchange intercambio) throws IOException {
-
         String ruta = intercambio.getRequestURI().getPath();
         String metodo = intercambio.getRequestMethod();
 
         if (ruta.equals("/") || ruta.equals("/index.html")) {
-
             if (!metodo.equals("GET")) {
                 responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
                 return;
@@ -56,7 +49,6 @@ public class Servidor {
         }
 
         if (ruta.equals("/api/calcular")) {
-
             if (!metodo.equals("POST")) {
                 responder(intercambio, 405, "{\"error\":\"Metodo no permitido\"}");
                 return;
@@ -78,17 +70,12 @@ public class Servidor {
                 double velocidad1 = datos.get("v1").getAsDouble();
                 double velocidad2 = datos.get("v2").getAsDouble();
 
-                double e = tipo.equals("elastica")
-                        ? 1.0
-                        : datos.get("e").getAsDouble();
-
                 Colision colision = new Colision(
                     tipo,
                     masa1,
                     masa2,
                     velocidad1,
-                    velocidad2,
-                    e
+                    velocidad2
                 );
 
                 JsonObject resultados = Main.procesarColision(colision);

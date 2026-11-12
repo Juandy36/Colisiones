@@ -8,43 +8,31 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class Main {
-
     public static void main(String[] args) {
         try {
-            Colision colision = new Colision(
-                "elastica",
-                2.0,
-                3.0,
-                5.0,
-                -2.0
-            );
-
-            String json = JsonManager.convertirAJson(colision);
-            JsonManager.guardar(json, "../datos/colision.json");
-
-            JsonObject resultados = ejecutarPython(json);
-
-            System.out.println("Resultados de la colision:");
-            System.out.println("Velocidad final 1: " + resultados.get("v1f").getAsDouble());
-            System.out.println("Velocidad final 2: " + resultados.get("v2f").getAsDouble());
-            System.out.println("Momento antes: " + resultados.get("momentoAntes").getAsDouble());
-            System.out.println("Momento despues: " + resultados.get("momentoDespues").getAsDouble());
-            System.out.println("Energia antes: " + resultados.get("energiaAntes").getAsDouble());
-            System.out.println("Energia despues: " + resultados.get("energiaDespues").getAsDouble());
-            System.out.println("Conserva momento: " + resultados.get("conservaMomento").getAsBoolean());
-            System.out.println("Conserva energia: " + resultados.get("conservaEnergia").getAsBoolean());
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            Servidor servidor = new Servidor();
+            servidor.iniciar();
+        } catch (IOException e) {
+            System.out.println("Error al iniciar el servidor: " + e.getMessage());
         }
     }
 
-    public static JsonObject ejecutarPython(String json) throws IOException, InterruptedException {
+    public static JsonObject procesarColision(Colision colision)
+            throws IOException, InterruptedException {
+
+        String json = JsonManager.convertirAJson(colision);
+
+        JsonManager.guardar(json, "../datos/colision.json");
+
+        return ejecutarPython(json);
+    }
+
+    public static JsonObject ejecutarPython(String json)
+            throws IOException, InterruptedException {
 
         ProcessBuilder proceso = new ProcessBuilder(
-            "py",
-            "../python/procesamiento.py"
-        );
+                "py",
+                "../python/procesamiento.py");
 
         proceso.redirectErrorStream(true);
         Process python = proceso.start();
@@ -58,7 +46,7 @@ public class Main {
 
         try (BufferedReader salida = new BufferedReader(
                 new InputStreamReader(
-                    python.getInputStream(), StandardCharsets.UTF_8))) {
+                        python.getInputStream(), StandardCharsets.UTF_8))) {
 
             String linea;
 
