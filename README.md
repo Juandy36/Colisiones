@@ -4,6 +4,19 @@
 
 El proyecto permite configurar simulaciones de colisiones, procesar los cálculos físicos, consultar un historial de simulaciones y generar informes en PDF con los resultados y sus respectivas gráficas.
 
+## Autores
+
+### Chicos Estudiosos
+![Interfaz del simulador](imagenes/estudiosos.jpeg)
+
+Proyecto desarrollado como parte de la asignatura **Programación de Computadores**.
+
+- Jefferson Steven Useche Duarte (líder)
+- Vismar Andrés Méndez Romero
+- Andrés Felipe Nichoy Calderón
+- Juan Diego Ortiz Mora
+- Paulo Cesar Claro
+
 ## Objetivos
 
 - Comprender el comportamiento de las colisiones elásticas y perfectamente inelásticas.
@@ -62,6 +75,7 @@ CollisionArena/
 ├── datos/
 │
 ├── imagenes/
+|   └── estudiosos.jpeg
 │
 ├── .gitignore
 └── README.md
@@ -142,16 +156,3 @@ Cada informe generado contiene:
 - Gráfica comparativa.
 
 El informe corresponde exclusivamente a la última simulación registrada.
-
-## Autores
-
-### Chicos Estudiosos
-![Interfaz del simulador](imagenes/estudiosos.jpeg)
-
-Proyecto desarrollado como parte de la asignatura **Programación de Computadores**.
-
-- Jefferson Steven Useche Duarte (líder)
-- Vismar Andrés Méndez Romero
-- Andrés Felipe Nichoy Calderón
-- Juan Diego Ortiz Mora
-- Paulo Cesar Claro
