@@ -14,13 +14,15 @@ public class Main {
             Colision colision = new Colision(
                 "elastica",
                 2.0,
-                5.0,
                 3.0,
-                -2.0,
-                1.0
+                5.0,
+                -2.0
             );
 
-            JsonObject resultados = procesarColision(colision);
+            String json = JsonManager.convertirAJson(colision);
+            JsonManager.guardar(json, "../datos/colision.json");
+
+            JsonObject resultados = ejecutarPython(json);
 
             System.out.println("Resultados de la colision:");
             System.out.println("Velocidad final 1: " + resultados.get("v1f").getAsDouble());
@@ -37,18 +39,7 @@ public class Main {
         }
     }
 
-    public static JsonObject procesarColision(Colision colision)
-            throws IOException, InterruptedException {
-
-        String json = JsonManager.convertirAJson(colision);
-
-        JsonManager.guardar(json, "../datos/colision.json");
-
-        return ejecutarPython(json);
-    }
-
-    public static JsonObject ejecutarPython(String json)
-            throws IOException, InterruptedException {
+    public static JsonObject ejecutarPython(String json) throws IOException, InterruptedException {
 
         ProcessBuilder proceso = new ProcessBuilder(
             "py",
@@ -56,7 +47,6 @@ public class Main {
         );
 
         proceso.redirectErrorStream(true);
-
         Process python = proceso.start();
 
         try (OutputStreamWriter entrada = new OutputStreamWriter(
@@ -83,7 +73,6 @@ public class Main {
             throw new IOException("Python termino con un error: " + respuesta);
         }
 
-        System.out.println("Respuesta recibida de Python: " + respuesta);
         return JsonParser.parseString(respuesta.toString()).getAsJsonObject();
     }
 }

@@ -1,13 +1,13 @@
 public class Colision {
+
     private String tipo;
     private double masa1;
     private double masa2;
     private double velocidad1;
     private double velocidad2;
-    private double e;
 
     public Colision(String tipo, double masa1, double masa2,
-                    double velocidad1, double velocidad2, double e) {
+                    double velocidad1, double velocidad2) {
 
         if (!tipo.equals("elastica") && !tipo.equals("inelastica")) {
             throw new IllegalArgumentException("Tipo de colision no valido.");
@@ -17,18 +17,9 @@ public class Colision {
             throw new IllegalArgumentException("Las masas deben ser mayores que cero.");
         }
 
-        if (e < 0 || e > 1) {
-            throw new IllegalArgumentException("El coeficiente de restitucion debe estar entre 0 y 1.");
-        }
-
         if (!Double.isFinite(masa1) || !Double.isFinite(masa2)
-                || !Double.isFinite(velocidad1) || !Double.isFinite(velocidad2)
-                || !Double.isFinite(e)) {
+                || !Double.isFinite(velocidad1) || !Double.isFinite(velocidad2)) {
             throw new IllegalArgumentException("Los valores deben ser numeros validos.");
-        }
-
-        if (tipo.equals("elastica") && e != 1.0) {
-            throw new IllegalArgumentException("Una colision elastica debe tener e = 1.");
         }
 
         this.tipo = tipo;
@@ -36,7 +27,6 @@ public class Colision {
         this.masa2 = masa2;
         this.velocidad1 = velocidad1;
         this.velocidad2 = velocidad2;
-        this.e = e;
     }
 
     public String getTipo() {
@@ -57,9 +47,5 @@ public class Colision {
 
     public double getVelocidad2() {
         return velocidad2;
-    }
-
-    public double getE() {
-        return e;
     }
 }

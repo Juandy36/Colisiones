@@ -8,30 +8,25 @@ def calcular_colision(datos):
     masa2 = float(datos["masa2"])
     velocidad1 = float(datos["velocidad1"])
     velocidad2 = float(datos["velocidad2"])
-    e = float(datos["e"])
 
     if tipo not in ["elastica", "inelastica"]:
         raise ValueError("Tipo de colision no valido.")
 
-    valores = [masa1, masa2, velocidad1, velocidad2, e]
+    if masa1 <= 0 or masa2 <= 0:
+        raise ValueError("Las masas deben ser mayores que cero.")
+
+    valores = [masa1, masa2, velocidad1, velocidad2]
 
     if not all(math.isfinite(valor) for valor in valores):
         raise ValueError("Todos los valores deben ser numeros validos.")
 
-    if masa1 <= 0 or masa2 <= 0:
-        raise ValueError("Las masas deben ser mayores que cero.")
-
-    if e < 0 or e > 1:
-        raise ValueError("El coeficiente de restitucion debe estar entre 0 y 1.")
-
-    if tipo == "elastica" and e != 1.0:
-        raise ValueError("Una colision elastica debe tener e = 1.")
-
-    if tipo == "inelastica" and e >= 1.0:
-        raise ValueError("Una colision inelastica debe tener e menor que 1.")
-
     if velocidad1 <= velocidad2:
         raise ValueError("Los cuerpos no se estan acercando.")
+
+    if tipo == "elastica":
+        e = 1.0
+    else:
+        e = 0.0
 
     suma_masas = masa1 + masa2
 
@@ -68,7 +63,6 @@ def calcular_colision(datos):
 
     resultados = {
         "tipo": tipo,
-        "e": e,
         "v1f": velocidad1f,
         "v2f": velocidad2f,
         "momentoAntes": momento_antes,
